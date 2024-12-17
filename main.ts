@@ -47,7 +47,14 @@ const routes: Route[] = [
         // Extract query parameters
         const url = new URL(req.url);
         
-        const model = url.searchParams.get("Model");
+        let model = url.searchParams.get("Model");
+        if (!model) {
+          model = url.searchParams.get("model");
+          if (!model) {
+            return new Response("Model parameter is required", { status: 400 });
+          }
+        }
+
 
         Deno.env.set("OLLAMA_MODEL", model || "qwen2.5-coder:14b");
         
