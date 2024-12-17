@@ -63,12 +63,6 @@
     }
   },
   "npm": {
-    "ollama@0.5.9": {
-      "integrity": "sha512-F/KZuDRC+ZsVCuMvcOYuQ6zj42/idzCkkuknGyyGVmNStMZ/sU3jQpvhnl4SyC0+zBzLiKNZJnJeuPFuieWZvQ==",
-      "dependencies": [
-        "whatwg-fetch"
-      ]
-    },
     "whatwg-fetch@3.6.20": {
       "integrity": "sha512-EqhiFU6daOA8kpjOWTL0olhVOF3i7OrFzSYiGsEMB8GcXS+RrzauAERX65xMeNWVqxA6HXH2m69Z9LaKKdisfg=="
     }
@@ -95,8 +89,7 @@
   "workspace": {
     "dependencies": [
       "jsr:@std/assert@1",
-      "jsr:@std/http@^1.0.11",
-      "npm:ollama@0.5.9"
+      "jsr:@std/http@^1.0.11"
     ]
   }
 }

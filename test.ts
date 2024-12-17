@@ -3,7 +3,7 @@ import "https://deno.land/x/dotenv@v3.2.2/load.ts"; // Import dotenv for environ
 async function createMarkdownTable(query: string, data: string) {
   const apiUrl = Deno.env.get("OLLAMA_API_URL"); // Load API URL from .env
   const model = "qwen2.5-coder:14b";
-
+  console.log("url", apiUrl); 
   if (!apiUrl) {
     console.error("Error: OLLAMA_API_URL is not set in the .env file.");
     return;

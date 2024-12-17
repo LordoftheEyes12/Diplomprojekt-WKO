@@ -66,9 +66,54 @@ export function buildJsonResponse(markdownTable: string): string {
 }
 
 
-export async function createMarkdownTable(query: string, data: string) {
+
+
+// Function to generate a SELECT query using Ollama API
+export async function generateSelectQuery(schema: string, input: string) {
   const apiUrl = Deno.env.get("OLLAMA_API_URL"); // Load API URL from .env
-  const model = "qwen2.5-coder:14b";
+  const model = Deno.env.get("OLLAMA_MODEL") || "qwen2.5-coder:14b"; // Default model fallback
+  console.log("model", model);
+  console.log("apiUrl", apiUrl);
+  if (!apiUrl) {
+    console.error("Error: OLLAMA_API_URL is not set in the .env file.");
+    return;
+  }
+
+  
+  const payload = {
+    model: model,
+    messages: [{ role: "user", content: `using the database with this schema\n schema: ${schema} \n answer the following query. Only generate SELECT queries. query: ${input}` }],
+    stream: false,
+  };
+
+  try {
+    const response = await fetch(apiUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Ollama API Error: ${response.status} ${response.statusText}`);
+    }
+
+    const result = await response.json();
+    const queryResult = result.message?.content || "No response from the model";
+
+    console.log("Generated SELECT Query:");
+    console.log(queryResult);
+    return queryResult;
+  } catch (error) {
+    console.error("Error generating SELECT query:", error.message);
+  }
+}
+
+// Function to create a Markdown table using a query and data
+async function createMarkdownTable(query: string, data: string) {
+  const apiUrl = Deno.env.get("OLLAMA_API_URL"); // Load API URL from .env
+  const model = Deno.env.get("OLLAMA_MODEL") || "qwen2.5-coder:14b"; // Default model fallback
 
   if (!apiUrl) {
     console.error("Error: OLLAMA_API_URL is not set in the .env file.");
@@ -100,7 +145,7 @@ export async function createMarkdownTable(query: string, data: string) {
     }
 
     const result = await response.json();
-    const markdownTable = result.message.content; // Extract the markdown table
+    const markdownTable = result.message?.content || "No markdown table generated";
 
     console.log("Generated Markdown Table:");
     console.log(markdownTable);
@@ -109,6 +154,8 @@ export async function createMarkdownTable(query: string, data: string) {
     console.error("Error communicating with Ollama API:", error.message);
   }
 }
+
+
 
 export async function getMarkdownTable(daten: string, result: string) {
   const query = result;

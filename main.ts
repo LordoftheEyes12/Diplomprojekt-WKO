@@ -1,7 +1,8 @@
-import Ollama from 'ollama';
+
 import {DB} from 'https://deno.land/x/sqlite/mod.ts';
 import { route, type Route } from "@std/http/unstable-route";
-import { extractSQLSelect, getMarkdownTable} from "./lib.ts";
+import { extractSQLSelect, getMarkdownTable, generateSelectQuery} from "./lib.ts";
+
 
 
 
@@ -25,10 +26,32 @@ const routes: Route[] = [
       if (req.method === "GET") {
         // Extract query parameters
         const url = new URL(req.url);
-        const input = url.searchParams.get("Input"); // Retrieve the value of "Input"
+        const input = url.searchParams.get("Input");
+        
 
         const result = await apiCall(input);
         return new Response(result, { headers: { "Content-Type": "application/json" } });
+      }
+
+      return new Response("Method not allowed", { status: 405 });
+    },
+  },
+  {
+    method: ["GET", "HEAD"],
+    pattern: new URLPattern({ pathname: "/model" }),
+    handler: (req: Request) => {
+      if (req.method === "HEAD") {
+        return new Response(null);
+      }
+      if (req.method === "GET") {
+        // Extract query parameters
+        const url = new URL(req.url);
+        
+        const model = url.searchParams.get("Model");
+
+        Deno.env.set("OLLAMA_MODEL", model || "qwen2.5-coder:14b");
+        
+        return new Response(`Model set to: ${model}`);
       }
 
       return new Response("Method not allowed", { status: 405 });
@@ -37,7 +60,7 @@ const routes: Route[] = [
 ];
 
 async function apiCall(input: string | null) {
-  console.log("Input value:", input); // Log the input value from query parameters
+  console.log("Input value:", input);
   const result = await getSQLQuery(input) || "";
   const daten = DataBase.query(result || "");
   const mdTable =await getMarkdownTable(daten.toString() , result);
@@ -49,21 +72,10 @@ async function apiCall(input: string | null) {
 }
 
 async function getSQLQuery(input: string | null) {
-  const trystring = `using the database with this schema\n schema: ${schema} \n\n awnser the following query Only generate SELECT queries. query: ${input}`;
-  //const queryString = `${input} give me an SQL query for the database with the schema ${schema}`;
-  const response = await Ollama.chat({
-    model: 'llama3.2',
-    messages: [{role: 'user', content: trystring}],
-    stream: false,
-  });
-  //console.log(response);
-
-  const apfelsafta = response.message.content;
-  //console.log(apfelsafta);
-
+  const response = await generateSelectQuery(schema, input || "");
+ 
   
-  const apfelsaft = extractSQLSelect(apfelsafta.toString());
-  //console.log(apfelsaft);
+  const apfelsaft = extractSQLSelect(response.toString());
   return apfelsaft;
 }
 
