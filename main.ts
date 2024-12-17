@@ -38,9 +38,9 @@ const routes: Route[] = [
 
 async function apiCall(input: string | null) {
   console.log("Input value:", input); // Log the input value from query parameters
-  const result = await getSQLQuery(input);
+  const result = await getSQLQuery(input) || "";
   const daten = DataBase.query(result || "");
-  const mdTable =await getMarkdownTable(daten, result);
+  const mdTable =await getMarkdownTable(daten.toString() , result);
   //console.log(daten);
   return JSON.stringify({ data: "API response", input, daten, mdTable });
 

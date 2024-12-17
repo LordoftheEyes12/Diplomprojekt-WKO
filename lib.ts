@@ -1,4 +1,5 @@
 import XRegExp from 'xregexp';
+import "https://deno.land/x/dotenv@v3.2.2/load.ts";
 
 
 
@@ -66,8 +67,13 @@ export function buildJsonResponse(markdownTable: string): string {
 
 
 export async function createMarkdownTable(query: string, data: string) {
-  const apiUrl = "https://llmtest.bendaschner.com/api/chat"; // Ollama's API endpoint
+  const apiUrl = Deno.env.get("OLLAMA_API_URL"); // Load API URL from .env
   const model = "qwen2.5-coder:14b";
+
+  if (!apiUrl) {
+    console.error("Error: OLLAMA_API_URL is not set in the .env file.");
+    return;
+  }
 
   const payload = {
     model: model,
@@ -102,4 +108,11 @@ export async function createMarkdownTable(query: string, data: string) {
   } catch (error) {
     console.error("Error communicating with Ollama API:", error.message);
   }
+}
+
+export async function getMarkdownTable(daten: string, result: string) {
+  const query = result;
+  const data = daten;
+
+  await createMarkdownTable(query, data);
 }
