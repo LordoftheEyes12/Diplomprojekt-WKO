@@ -79,6 +79,9 @@
   "remote": {
     "https://cdn.skypack.dev/-/xregexp@v5.1.1-m5SAmG5gz9BZlCyYte0K/dist=es2019,mode=imports/optimized/xregexp.js": "a5c8c7010674f069dcb20212d0cd0de9f2b249c61100cfd9947489af86a33276",
     "https://cdn.skypack.dev/xregexp": "4c0ef77f77dde9fbea6c1644e3ae5dbc64a763e93a2a7793a5e32c1741187d0e",
+    "https://deno.land/x/dotenv@v3.2.2/load.ts": "cbd76a0aee01aad8d09222afaa1dd04b84d9d3e44637503b01bf77a91df9e041",
+    "https://deno.land/x/dotenv@v3.2.2/mod.ts": "077b48773de9205266a0b44c3c3a3c3083449ed64bb0b6cc461b95720678d38e",
+    "https://deno.land/x/dotenv@v3.2.2/util.ts": "693730877b13f8ead2b79b2aa31e2a0652862f7dc0c5f6d2f313f4d39c7b7670",
     "https://deno.land/x/sqlite@v3.9.1/build/sqlite.js": "2afc7875c7b9c85d89730c4a311ab3a304e5d1bf761fbadd8c07bbdf130f5f9b",
     "https://deno.land/x/sqlite@v3.9.1/build/vfs.js": "7f7778a9fe499cd10738d6e43867340b50b67d3e39142b0065acd51a84cd2e03",
     "https://deno.land/x/sqlite@v3.9.1/mod.ts": "e09fc79d8065fe222578114b109b1fd60077bff1bb75448532077f784f4d6a83",

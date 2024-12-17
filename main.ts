@@ -1,7 +1,9 @@
 import Ollama from 'ollama';
 import {DB} from 'https://deno.land/x/sqlite/mod.ts';
 import { route, type Route } from "@std/http/unstable-route";
-import { extractByRegex, extractByXRegex, extractSQLSelect} from "./extract.ts";
+import { extractSQLSelect, getMarkdownTable} from "./lib.ts";
+
+
 
 
 const DataBase = new DB('dev.db');
@@ -38,8 +40,9 @@ async function apiCall(input: string | null) {
   console.log("Input value:", input); // Log the input value from query parameters
   const result = await getSQLQuery(input);
   const daten = DataBase.query(result || "");
-  console.log(daten);
-  return JSON.stringify({ data: "API response", input, daten });
+  const mdTable =await getMarkdownTable(daten, result);
+  //console.log(daten);
+  return JSON.stringify({ data: "API response", input, daten, mdTable });
 
   
   //return JSON.stringify({ data: "API response", input, result });
@@ -53,13 +56,14 @@ async function getSQLQuery(input: string | null) {
     messages: [{role: 'user', content: trystring}],
     stream: false,
   });
-  console.log(response);
+  //console.log(response);
+
   const apfelsafta = response.message.content;
-console.log(apfelsafta);
+  //console.log(apfelsafta);
 
   
   const apfelsaft = extractSQLSelect(apfelsafta.toString());
-  console.log(apfelsaft);
+  //console.log(apfelsaft);
   return apfelsaft;
 }
 
