@@ -57,8 +57,24 @@ const routes: Route[] = [
 
 
         Deno.env.set("OLLAMA_MODEL", model || "qwen2.5-coder:14b");
-        
+        console.log("Model set to:", model);
         return new Response(`Model set to: ${model}`);
+      }
+
+      return new Response("Method not allowed", { status: 405 });
+    },
+  },
+  {
+    method: ["GET", "HEAD"],
+    pattern: new URLPattern({ pathname: "/" }),
+    handler: async (req: Request) => {
+      if (req.method === "HEAD") {
+        return new Response(null);
+      }
+      if (req.method === "GET") {
+        // Extract query parameters
+        const html = await Deno.readFile("./public/index.html");
+        return new Response(html, { headers: { "Content-Type": "text/html" } });
       }
 
       return new Response("Method not allowed", { status: 405 });
