@@ -11,8 +11,8 @@
     "jsr:@std/media-types@^1.1.0": "1.1.0",
     "jsr:@std/net@^1.0.4": "1.0.4",
     "jsr:@std/path@^1.0.8": "1.0.8",
-    "jsr:@std/streams@^1.0.8": "1.0.8",
-    "npm:ollama@0.5.9": "0.5.9"
+    "jsr:@std/streams@^1.0.8": "1.0.8"
+  
   },
   "jsr": {
     "@std/assert@1.0.8": {

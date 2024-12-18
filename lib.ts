@@ -82,7 +82,7 @@ export async function generateSelectQuery(schema: string, input: string) {
   
   const payload = {
     model: model,
-    messages: [{ role: "user", content: `using the database with this schema\n schema: ${schema} \n answer the following query. Only generate SELECT queries. query: ${input}` }],
+    messages: [{ role: "user", content: `using the SQLite database with this schema\n schema: ${schema} \n answer the following query. Only generate SELECT queries. query: ${input}` }],
     stream: false,
   };
 
@@ -149,7 +149,8 @@ async function createMarkdownTable(query: string, data: string) {
 
     console.log("Generated Markdown Table:");
     console.log(markdownTable);
-    return markdownTable;
+    const resp = extractMarkdownTable(markdownTable);
+    return resp;
   } catch (error) {
     console.error("Error communicating with Ollama API:", error.message);
   }
@@ -160,6 +161,6 @@ async function createMarkdownTable(query: string, data: string) {
 export async function getMarkdownTable(daten: string, result: string) {
   const query = result;
   const data = daten;
-
-  await createMarkdownTable(query, data);
+  const file = await createMarkdownTable(query, data);
+  return file;
 }

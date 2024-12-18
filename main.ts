@@ -70,11 +70,8 @@ async function apiCall(input: string | null) {
   console.log("Input value:", input);
   const result = await getSQLQuery(input) || "";
   const daten = DataBase.query(result || "");
-  const mdTable =await getMarkdownTable(daten.toString() , result);
-  //console.log(daten);
-  return JSON.stringify({ data: "API response", input, daten, mdTable });
-
-  
+  const mdTable =await getMarkdownTable(daten.toString() , result) ;
+  return JSON.stringify({ input, result, daten, mdTable });
   //return JSON.stringify({ data: "API response", input, result });
 }
 
@@ -92,12 +89,10 @@ function defaultHandler(_req: Request) {
 Deno.serve(route(routes, defaultHandler));
 
 
-
+/*
 if (import.meta.main) { 
  const Input = "give me all customers from the country Argentina";
   console.log(await apiCall(Input));
-
-
 }
 
-
+*/
