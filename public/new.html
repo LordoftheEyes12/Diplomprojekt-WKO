@@ -8,33 +8,139 @@
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
+            background-color: #121212;
+            color: #ffffff;
         }
+
+        h1, h3 {
+            color: #bb86fc;
+        }
+
+        p, select, input, button {
+            color: #ffffff;
+        }
+
+        input[type="text"] {
+            width: 80%;
+            padding: 10px;
+            background-color: #1e1e1e;
+            border: 1px solid #333;
+            border-radius: 5px;
+            color: #ffffff;
+        }
+
+        button {
+            padding: 10px 20px;
+            margin-top: 10px;
+            background-color: #3700b3;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            color: #ffffff;
+        }
+
+        button:hover {
+            background-color: #6200ea;
+        }
+
+        select {
+            padding: 10px;
+            background-color: #1e1e1e;
+            border: 1px solid #333;
+            border-radius: 5px;
+            color: #ffffff;
+        }
+
         .output {
             margin-top: 20px;
         }
+
         .section {
             margin-bottom: 20px;
         }
+
         .section h3 {
             margin-bottom: 10px;
         }
+
         pre {
-            background-color: #f4f4f4;
+            background-color: #1e1e1e;
             padding: 10px;
-            border: 1px solid #ddd;
+            border: 1px solid #333;
+            border-radius: 5px;
             overflow-x: auto;
+            color: #ffffff;
         }
+
         #loadingText {
             display: none;
             font-style: italic;
             color: gray;
+        }
+
+        #loadingAnimation {
+            display: none;
+            border: 5px solid #444; /* Light gray */
+            border-top: 5px solid #bb86fc; /* Purple */
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        a {
+            color: #bb86fc;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        ::placeholder {
+            color: #888;
+        }
+
+        .markdown {
+            background-color: #1e1e1e;
+            padding: 10px;
+            border: 1px solid #333;
+            border-radius: 5px;
+            overflow-x: auto;
+            color: #ffffff;
+            font-family: monospace;
+        }
+
+        .markdown table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .markdown th, .markdown td {
+            border: 1px solid #444;
+            padding: 8px;
+            text-align: left;
+        }
+
+        .markdown th {
+            background-color: #292929;
+        }
+
+        .markdown tr:nth-child(even) {
+            background-color: #1e1e1e;
         }
     </style>
 </head>
 <body>
     <h1>SwiftQuery Diplomprojekt</h1>
     <p>Enter natural language query:</p>
-    <input type="text" id="inputField" placeholder="Enter your input here..." style="width: 80%;">
+    <input type="text" id="inputField" placeholder="Enter your input here...">
     <br><br>
     <button id="sendButton">Send Request</button>
 
@@ -44,17 +150,18 @@
     </select>
     <button id="selectModelButton">Select Model</button>
 
-    <p id="loadingText">Loading, please wait...</p>
+    <div id="loadingAnimation"></div>
 
     <div class="output" id="output">
         <!-- Rendered API response will appear here -->
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.3.0/marked.min.js"></script>
     <script>
         async function populateModelDropdown() {
             const modelDropdown = document.getElementById('modelDropdown');
-            const loadingText = document.getElementById('loadingText');
-            loadingText.style.display = 'block';
+            const loadingAnimation = document.getElementById('loadingAnimation');
+            loadingAnimation.style.display = 'block';
 
             try {
                 const response = await fetch('https://ollama1.bendaschner.com/api/tags'); // Replace with actual API URL
@@ -74,14 +181,14 @@
             } catch (error) {
                 alert(`Error fetching models: ${error.message}`);
             } finally {
-                loadingText.style.display = 'none';
+                loadingAnimation.style.display = 'none';
             }
         }
 
         document.getElementById('sendButton').addEventListener('click', async () => {
             const inputField = document.getElementById('inputField');
             const output = document.getElementById('output');
-            const loadingText = document.getElementById('loadingText');
+            const loadingAnimation = document.getElementById('loadingAnimation');
 
             output.innerHTML = '';
             const userInput = inputField.value;
@@ -91,7 +198,7 @@
                 return;
             }
 
-            loadingText.style.display = 'block';
+            loadingAnimation.style.display = 'block';
 
             try {
                 const response = await fetch(`http://localhost:8000/api?Input=${encodeURIComponent(userInput)}`);
@@ -126,20 +233,33 @@
                     renderSection('Daten', 'Invalid format');
                 }
 
-                renderSection('Markdown Table', jsonResponse.mdTable);
+                const markdownContainer = document.createElement('div');
+                markdownContainer.className = 'section';
+
+                const markdownHeading = document.createElement('h3');
+                markdownHeading.textContent = 'Markdown Table';
+
+                const markdownContent = document.createElement('div');
+                markdownContent.className = 'markdown';
+                markdownContent.innerHTML = marked.parse(jsonResponse.mdTable || '');
+
+                markdownContainer.appendChild(markdownHeading);
+                markdownContainer.appendChild(markdownContent);
+                output.appendChild(markdownContainer);
+
             } catch (error) {
                 output.textContent = `Error: ${error.message}`;
             } finally {
-                loadingText.style.display = 'none';
+                loadingAnimation.style.display = 'none';
             }
         });
 
         document.getElementById('selectModelButton').addEventListener('click', async () => {
             const modelDropdown = document.getElementById('modelDropdown');
             const selectedModel = modelDropdown.value;
-            const loadingText = document.getElementById('loadingText');
+            const loadingAnimation = document.getElementById('loadingAnimation');
 
-            loadingText.style.display = 'block';
+            loadingAnimation.style.display = 'block';
 
             try {
                 const response = await fetch(`http://localhost:8000/model?Model=${encodeURIComponent(selectedModel)}`);
@@ -151,7 +271,7 @@
             } catch (error) {
                 alert(`Error: ${error.message}`);
             } finally {
-                loadingText.style.display = 'none';
+                loadingAnimation.style.display = 'none';
             }
         });
 

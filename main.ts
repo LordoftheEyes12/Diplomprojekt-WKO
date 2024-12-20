@@ -79,6 +79,22 @@ const routes: Route[] = [
 
       return new Response("Method not allowed", { status: 405 });
     },
+  },
+  {
+    method: ["GET", "HEAD"],
+    pattern: new URLPattern({ pathname: "/new" }),
+    handler: async (req: Request) => {
+      if (req.method === "HEAD") {
+        return new Response(null);
+      }
+      if (req.method === "GET") {
+        // Extract query parameters
+        const html = await Deno.readFile("./public/new.html");
+        return new Response(html, { headers: { "Content-Type": "text/html" } });
+      }
+
+      return new Response("Method not allowed", { status: 405 });
+    },
   }
 ];
 
