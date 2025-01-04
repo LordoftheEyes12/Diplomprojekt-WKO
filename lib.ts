@@ -84,7 +84,7 @@ export async function generateSelectQuery(schema: string, input: string) {
   
   const payload = {
     model: model,
-    messages: [{ role: "user", content: `using the SQLite database with this schema\n schema: ${schema} \n answer the following query. Only generate SELECT queries. query: ${input}` }],
+    messages: [{ role: "user", content: `using the SQLite database with this schema\n schema: ${schema} \n answer the following query. Only generate select queries. under no circumstances use the word SELECT anywhere other than in the query itself query: ${input}` }],
     stream: false,
   };
 
