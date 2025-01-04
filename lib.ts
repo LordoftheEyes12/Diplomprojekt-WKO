@@ -68,14 +68,16 @@ export function buildJsonResponse(markdownTable: string): string {
 
 
 
-// Function to generate a SELECT query using Ollama API
+// Function to generate a SELECT query with API
 export async function generateSelectQuery(schema: string, input: string) {
-  const apiUrl = Deno.env.get("OLLAMA_API_URL"); // Load API URL from .env
-  const model = Deno.env.get("OLLAMA_MODEL") || "qwen2.5-coder:14b"; // Default model fallback
+  let apiUrl = Deno.env.get("API_URL"); // Load API URL from .env
+  const model = Deno.env.get("MODEL");
+  const apiKey = Deno.env.get("API_KEY");
+  apiUrl = apiUrl + "/v1/chat/completions";
   console.log("model", model);
   console.log("apiUrl", apiUrl);
   if (!apiUrl) {
-    console.error("Error: OLLAMA_API_URL is not set in the .env file.");
+    console.error("Error: API_URL is not set in the .env file.");
     return;
   }
 
@@ -91,16 +93,18 @@ export async function generateSelectQuery(schema: string, input: string) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "Authorization": `Bearer ${apiKey}`
       },
       body: JSON.stringify(payload),
     });
 
     if (!response.ok) {
-      throw new Error(`Ollama API Error: ${response.status} ${response.statusText}`);
+      throw new Error(`API Error: ${response.status} ${response.statusText}`);
     }
 
     const result = await response.json();
-    const queryResult = result.message?.content || "No response from the model";
+    console.log(result);
+    const queryResult = result.choices[0]?.message?.content || "No response from the model";
 
     console.log("Generated SELECT Query:");
     console.log(queryResult);
@@ -112,11 +116,13 @@ export async function generateSelectQuery(schema: string, input: string) {
 
 // Function to create a Markdown table using a query and data
 async function createMarkdownTable(query: string, data: string) {
-  const apiUrl = Deno.env.get("OLLAMA_API_URL"); // Load API URL from .env
-  const model = Deno.env.get("OLLAMA_MODEL") || "qwen2.5-coder:14b"; // Default model fallback
+  let apiUrl = Deno.env.get("API_URL"); // Load API URL from .env
+  const model = Deno.env.get("MODEL") ; // Default model fallback
+  const apiKey = Deno.env.get("API_KEY");
+  apiUrl = apiUrl + "/v1/chat/completions";
 
   if (!apiUrl) {
-    console.error("Error: OLLAMA_API_URL is not set in the .env file.");
+    console.error("Error: API_URL is not set in the .env file.");
     return;
   }
 
@@ -136,23 +142,24 @@ async function createMarkdownTable(query: string, data: string) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "Authorization": `Bearer ${apiKey}`
       },
       body: JSON.stringify(payload),
     });
 
     if (!response.ok) {
-      throw new Error(`Ollama API responded with status: ${response.status}`);
+      throw new Error(`API responded with status: ${response.status}`);
     }
 
     const result = await response.json();
-    const markdownTable = result.message?.content || "No markdown table generated";
+    const markdownTable = result.choices[0]?.message?.content || "No markdown table generated";
 
     console.log("Generated Markdown Table:");
     console.log(markdownTable);
     const resp = extractMarkdownTable(markdownTable);
     return resp;
   } catch (error) {
-    console.error("Error communicating with Ollama API:", error.message);
+    console.error("Error communicating with API:", error.message);
   }
 }
 
