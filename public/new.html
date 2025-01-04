@@ -63,6 +63,12 @@
             margin-bottom: 10px;
         }
 
+        .debug-mode {
+            border-left: 4px solid #ff9800;
+            padding-left: 10px;
+            background-color: #1e1e1e;
+        }
+
         pre {
             background-color: #1e1e1e;
             padding: 10px;
@@ -80,8 +86,8 @@
 
         #loadingAnimation {
             display: none;
-            border: 5px solid #444; /* Light gray */
-            border-top: 5px solid #bb86fc; /* Purple */
+            border: 5px solid #444;
+            border-top: 5px solid #bb86fc;
             border-radius: 50%;
             width: 40px;
             height: 40px;
@@ -139,16 +145,11 @@
 </head>
 <body>
     <h1>SwiftQuery Diplomprojekt</h1>
+    <div id="debugIndicator"></div>
     <p>Enter natural language query:</p>
     <input type="text" id="inputField" placeholder="Enter your input here...">
     <br><br>
     <button id="sendButton">Send Request</button>
-
-    <p>Select a model:</p>
-    <select id="modelDropdown">
-        <!-- Models will be dynamically populated -->
-    </select>
-    <button id="selectModelButton">Select Model</button>
 
     <div id="loadingAnimation"></div>
 
@@ -158,39 +159,14 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.3.0/marked.min.js"></script>
     <script>
-        async function populateModelDropdown() {
-            const modelDropdown = document.getElementById('modelDropdown');
-            const loadingAnimation = document.getElementById('loadingAnimation');
-            loadingAnimation.style.display = 'block';
-
-            try {
-                const response = await fetch('https://ollama1.bendaschner.com/api/tags'); // Replace with actual API URL
-                if (!response.ok) {
-                    throw new Error(`Failed to fetch models with status ${response.status}`);
-                }
-
-                const jsonResponse = await response.json();
-                const models = jsonResponse.models;
-
-                models.forEach(model => {
-                    const option = document.createElement('option');
-                    option.value = model.name.replace(/:latest$/, '');
-                    option.textContent = model.name.replace(/:latest$/, '');
-                    modelDropdown.appendChild(option);
-                });
-            } catch (error) {
-                alert(`Error fetching models: ${error.message}`);
-            } finally {
-                loadingAnimation.style.display = 'none';
-            }
-        }
-
         document.getElementById('sendButton').addEventListener('click', async () => {
             const inputField = document.getElementById('inputField');
             const output = document.getElementById('output');
+            const debugIndicator = document.getElementById('debugIndicator');
             const loadingAnimation = document.getElementById('loadingAnimation');
 
             output.innerHTML = '';
+            debugIndicator.innerHTML = '';
             const userInput = inputField.value;
 
             if (!userInput) {
@@ -207,45 +183,45 @@
                 }
 
                 const jsonResponse = await response.json();
+                const isDebugMode = jsonResponse.debug === "1";
 
-                const renderSection = (title, content) => {
+                // Display debug mode indicator
+                if (isDebugMode) {
+                    debugIndicator.textContent = 'Reply sent in DEBUG MODE';
+                    debugIndicator.style.color = '#ff9800';
+                }
+
+                const renderSection = (title, content, isDebugOnly = false) => {
+                    if (!content || (isDebugOnly && !isDebugMode)) return;
+
                     const section = document.createElement('div');
                     section.className = 'section';
+
+                    if (isDebugOnly) section.classList.add('debug-mode');
 
                     const heading = document.createElement('h3');
                     heading.textContent = title;
 
-                    const pre = document.createElement('pre');
-                    pre.textContent = content;
+                    if (title === 'Markdown Table') {
+                        const markdownContainer = document.createElement('div');
+                        markdownContainer.className = 'markdown';
+                        markdownContainer.innerHTML = marked.parse(content); // Use `marked.parse` here.
+                        section.appendChild(heading);
+                        section.appendChild(markdownContainer);
+                    } else {
+                        const pre = document.createElement('pre');
+                        pre.textContent = content;
+                        section.appendChild(heading);
+                        section.appendChild(pre);
+                    }
 
-                    section.appendChild(heading);
-                    section.appendChild(pre);
                     output.appendChild(section);
                 };
 
-                renderSection('Input', jsonResponse.input);
-                renderSection('Result', jsonResponse.result);
-
-                if (Array.isArray(jsonResponse.daten)) {
-                    const datenContent = jsonResponse.daten.map(row => row.join(', ')).join('\n');
-                    renderSection('Daten', datenContent);
-                } else {
-                    renderSection('Daten', 'Invalid format');
-                }
-
-                const markdownContainer = document.createElement('div');
-                markdownContainer.className = 'section';
-
-                const markdownHeading = document.createElement('h3');
-                markdownHeading.textContent = 'Markdown Table';
-
-                const markdownContent = document.createElement('div');
-                markdownContent.className = 'markdown';
-                markdownContent.innerHTML = marked.parse(jsonResponse.mdTable || '');
-
-                markdownContainer.appendChild(markdownHeading);
-                markdownContainer.appendChild(markdownContent);
-                output.appendChild(markdownContainer);
+                renderSection('Input', jsonResponse.input, true);
+                renderSection('Result', jsonResponse.result, true);
+                renderSection('Daten', jsonResponse.daten ? jsonResponse.daten.map(row => row.join(', ')).join('\n') : '');
+                renderSection('Markdown Table', jsonResponse.mdTable || '');
 
             } catch (error) {
                 output.textContent = `Error: ${error.message}`;
@@ -253,30 +229,6 @@
                 loadingAnimation.style.display = 'none';
             }
         });
-
-        document.getElementById('selectModelButton').addEventListener('click', async () => {
-            const modelDropdown = document.getElementById('modelDropdown');
-            const selectedModel = modelDropdown.value;
-            const loadingAnimation = document.getElementById('loadingAnimation');
-
-            loadingAnimation.style.display = 'block';
-
-            try {
-                const response = await fetch(`http://localhost:8000/model?Model=${encodeURIComponent(selectedModel)}`);
-                if (!response.ok) {
-                    throw new Error(`Model selection failed with status ${response.status}`);
-                }
-
-                alert(`Model Response: ${await response.text()}`);
-            } catch (error) {
-                alert(`Error: ${error.message}`);
-            } finally {
-                loadingAnimation.style.display = 'none';
-            }
-        });
-
-        // Populate model dropdown on page load
-        window.onload = populateModelDropdown;
     </script>
 </body>
 </html>
