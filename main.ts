@@ -1,7 +1,7 @@
 import { DB } from 'https://deno.land/x/sqlite/mod.ts';
 import { route, type Route } from "@std/http/unstable-route";
 
-import { getMarkdownTable, getModels, getSQLQuery, changeProvider, setModel } from "./lib.ts";
+import { getMarkdownTable, getModels, getSQLQuery, changeProvider } from "./lib.ts";
 import "https://deno.land/x/dotenv@v3.2.2/load.ts";
 
 let debug = Deno.env.get("DEBUG");
