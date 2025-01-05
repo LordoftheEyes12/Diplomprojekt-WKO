@@ -3,145 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>API Response Viewer</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #121212;
-            color: #ffffff;
-        }
 
-        h1, h3 {
-            color: #bb86fc;
-        }
+    <title>Dimplomprojekt testwebsite</title>
+    <link rel="stylesheet" href="style.css">
 
-        p, select, input, button {
-            color: #ffffff;
-        }
-
-        input[type="text"] {
-            width: 80%;
-            padding: 10px;
-            background-color: #1e1e1e;
-            border: 1px solid #333;
-            border-radius: 5px;
-            color: #ffffff;
-        }
-
-        button {
-            padding: 10px 20px;
-            margin-top: 10px;
-            background-color: #3700b3;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            color: #ffffff;
-        }
-
-        button:hover {
-            background-color: #6200ea;
-        }
-
-        select {
-            padding: 10px;
-            background-color: #1e1e1e;
-            border: 1px solid #333;
-            border-radius: 5px;
-            color: #ffffff;
-        }
-
-        .output {
-            margin-top: 20px;
-        }
-
-        .section {
-            margin-bottom: 20px;
-        }
-
-        .section h3 {
-            margin-bottom: 10px;
-        }
-
-        .debug-mode {
-            border-left: 4px solid #ff9800;
-            padding-left: 10px;
-            background-color: #1e1e1e;
-        }
-
-        pre {
-            background-color: #1e1e1e;
-            padding: 10px;
-            border: 1px solid #333;
-            border-radius: 5px;
-            overflow-x: auto;
-            color: #ffffff;
-        }
-
-        #loadingText {
-            display: none;
-            font-style: italic;
-            color: gray;
-        }
-
-        #loadingAnimation {
-            display: none;
-            border: 5px solid #444;
-            border-top: 5px solid #bb86fc;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 20px auto;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        a {
-            color: #bb86fc;
-            text-decoration: none;
-        }
-
-        a:hover {
-            text-decoration: underline;
-        }
-
-        ::placeholder {
-            color: #888;
-        }
-
-        .markdown {
-            background-color: #1e1e1e;
-            padding: 10px;
-            border: 1px solid #333;
-            border-radius: 5px;
-            overflow-x: auto;
-            color: #ffffff;
-            font-family: monospace;
-        }
-
-        .markdown table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .markdown th, .markdown td {
-            border: 1px solid #444;
-            padding: 8px;
-            text-align: left;
-        }
-
-        .markdown th {
-            background-color: #292929;
-        }
-
-        .markdown tr:nth-child(even) {
-            background-color: #1e1e1e;
-        }
-    </style>
 </head>
 <body>
     <h1>SwiftQuery Diplomprojekt</h1>
@@ -151,84 +16,18 @@
     <br><br>
     <button id="sendButton">Send Request</button>
 
+    <p>Select a model:</p>
+    <select id="modelDropdown"></select>
+    <button id="selectModelButton">Select Model</button>
+
     <div id="loadingAnimation"></div>
 
-    <div class="output" id="output">
-        <!-- Rendered API response will appear here -->
-    </div>
+    <div class="output" id="output"></div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.3.0/marked.min.js"></script>
-    <script>
-        document.getElementById('sendButton').addEventListener('click', async () => {
-            const inputField = document.getElementById('inputField');
-            const output = document.getElementById('output');
-            const debugIndicator = document.getElementById('debugIndicator');
-            const loadingAnimation = document.getElementById('loadingAnimation');
 
-            output.innerHTML = '';
-            debugIndicator.innerHTML = '';
-            const userInput = inputField.value;
+    <script src="script.js" defer></script>
+ 
 
-            if (!userInput) {
-                output.textContent = 'Please enter some input.';
-                return;
-            }
-
-            loadingAnimation.style.display = 'block';
-
-            try {
-                const response = await fetch(`http://localhost:8000/api?Input=${encodeURIComponent(userInput)}`);
-                if (!response.ok) {
-                    throw new Error(`API request failed with status ${response.status}`);
-                }
-
-                const jsonResponse = await response.json();
-                const isDebugMode = jsonResponse.debug === "1";
-
-                // Display debug mode indicator
-                if (isDebugMode) {
-                    debugIndicator.textContent = 'Reply sent in DEBUG MODE';
-                    debugIndicator.style.color = '#ff9800';
-                }
-
-                const renderSection = (title, content, isDebugOnly = false) => {
-                    if (!content || (isDebugOnly && !isDebugMode)) return;
-
-                    const section = document.createElement('div');
-                    section.className = 'section';
-
-                    if (isDebugOnly) section.classList.add('debug-mode');
-
-                    const heading = document.createElement('h3');
-                    heading.textContent = title;
-
-                    if (title === 'Markdown Table') {
-                        const markdownContainer = document.createElement('div');
-                        markdownContainer.className = 'markdown';
-                        markdownContainer.innerHTML = marked.parse(content); // Use `marked.parse` here.
-                        section.appendChild(heading);
-                        section.appendChild(markdownContainer);
-                    } else {
-                        const pre = document.createElement('pre');
-                        pre.textContent = content;
-                        section.appendChild(heading);
-                        section.appendChild(pre);
-                    }
-
-                    output.appendChild(section);
-                };
-
-                renderSection('Input', jsonResponse.input, true);
-                renderSection('Result', jsonResponse.result, true);
-                renderSection('Daten', jsonResponse.daten ? jsonResponse.daten.map(row => row.join(', ')).join('\n') : '');
-                renderSection('Markdown Table', jsonResponse.mdTable || '');
-
-            } catch (error) {
-                output.textContent = `Error: ${error.message}`;
-            } finally {
-                loadingAnimation.style.display = 'none';
-            }
-        });
-    </script>
 </body>
 </html>

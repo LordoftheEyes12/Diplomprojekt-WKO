@@ -1,6 +1,7 @@
 import XRegExp from 'xregexp';
 import "https://deno.land/x/dotenv@v3.2.2/load.ts";
 
+const schema = "CREATE TABLE `categories` ( `CategoryID` INT NOT NULL UNIQUE PRIMARY KEY , `CategoryName` varchar(255) DEFAULT NULL, `Description` varchar(255) DEFAULT NULL ); CREATE TABLE `customers` ( `CustomerID` INT NOT NULL UNIQUE PRIMARY KEY, `CustomerName` varchar(255) DEFAULT NULL, `ContactName` varchar(255) DEFAULT NULL, `Address` varchar(255) DEFAULT NULL, `City` varchar(255) DEFAULT NULL, `PostalCode` varchar(255) DEFAULT NULL, `Country` varchar(255) DEFAULT NULL ); CREATE TABLE `employees` ( `EmployeeID` INT NOT NULL UNIQUE PRIMARY KEY, `LastName` varchar(255) DEFAULT NULL, `FirstName` varchar(255) DEFAULT NULL, `BirthDate` date DEFAULT NULL, `Photo` varchar(255) DEFAULT NULL, `Notes` text ); CREATE TABLE `orders` ( `OrderID` INT NOT NULL UNIQUE PRIMARY KEY, `CustomerID` INT DEFAULT NULL, `EmployeeID` INT DEFAULT NULL, `OrderDate` date DEFAULT NULL, `ShipperID` INT DEFAULT NULL, FOREIGN KEY (`CustomerID`) REFERENCES `customers` (`CustomerID`), FOREIGN KEY (`EmployeeID`) REFERENCES `employees` (`EmployeeID`), FOREIGN KEY (`ShipperID`) REFERENCES `shippers` (`ShipperID`) ); CREATE TABLE `order_details` ( `OrderDetailID` INT NOT NULL UNIQUE PRIMARY KEY, `OrderID` INT DEFAULT NULL, `ProductID` INT DEFAULT NULL, `Quantity` INT DEFAULT NULL, FOREIGN KEY (`OrderID`) REFERENCES `orders` (`OrderID`), FOREIGN KEY (`ProductID`) REFERENCES `products` (`ProductID`) ); CREATE TABLE `products` ( `ProductID` INT NOT NULL UNIQUE PRIMARY KEY, `ProductName` varchar(255) DEFAULT NULL, `SupplierID` INT DEFAULT NULL, `CategoryID` INT DEFAULT NULL, `Unit` varchar(255) DEFAULT NULL, `Price` double DEFAULT NULL, FOREIGN KEY (`CategoryID`) REFERENCES `categories` (`CategoryID`), FOREIGN KEY (`SupplierID`) REFERENCES `suppliers` (`SupplierID`) ); CREATE TABLE `shippers` ( `ShipperID` INT NOT NULL UNIQUE PRIMARY KEY, `ShipperName` varchar(255) DEFAULT NULL, `Phone` varchar(255) DEFAULT NULL ); CREATE TABLE `suppliers` ( `SupplierID` INT NOT NULL UNIQUE PRIMARY KEY, `SupplierName` varchar(255) DEFAULT NULL, `ContactName` varchar(255) DEFAULT NULL, `Address` varchar(255) DEFAULT NULL, `City` varchar(255) DEFAULT NULL, `PostalCode` varchar(255) DEFAULT NULL, `Country` varchar(255) DEFAULT NULL, `Phone` varchar(255) DEFAULT NULL );";
 
 
 export function extractSQLSelect(input: string): string | null {
@@ -68,21 +69,34 @@ export function buildJsonResponse(markdownTable: string): string {
 
 
 
-// Function to generate a SELECT query using Ollama API
+// Function to generate a SELECT query with API
 export async function generateSelectQuery(schema: string, input: string) {
-  const apiUrl = Deno.env.get("OLLAMA_API_URL"); // Load API URL from .env
-  const model = Deno.env.get("OLLAMA_MODEL") || "qwen2.5-coder:14b"; // Default model fallback
+  const provider = Deno.env.get("API_PROVIDER");
+  let apiUrl;
+  let model;
+  let apiKey;
+  if (provider === "OA") {
+  apiUrl = Deno.env.get("OA_API_URL"); 
+  model = Deno.env.get("OA_MODEL");
+  apiKey = Deno.env.get("OA_API_KEY");
+  }
+  else if (provider === "OL"){
+  apiUrl = Deno.env.get("OL_API_URL"); 
+  model = Deno.env.get("OL_MODEL");
+  apiKey = Deno.env.get("OL_API_KEY");
+  }
+  apiUrl = apiUrl + "/v1/chat/completions";
   console.log("model", model);
   console.log("apiUrl", apiUrl);
   if (!apiUrl) {
-    console.error("Error: OLLAMA_API_URL is not set in the .env file.");
+    console.error("Error: API_URL is not set in the .env file.");
     return;
   }
 
   
   const payload = {
     model: model,
-    messages: [{ role: "user", content: `using the SQLite database with this schema\n schema: ${schema} \n answer the following query. Only generate SELECT queries. query: ${input}` }],
+    messages: [{ role: "user", content: `using the SQLite database with this schema\n schema: ${schema} \n answer the following query. Only generate select queries. under no circumstances use the word SELECT anywhere other than in the query itself query: ${input}` }],
     stream: false,
   };
 
@@ -91,16 +105,18 @@ export async function generateSelectQuery(schema: string, input: string) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "Authorization": `Bearer ${apiKey}`
       },
       body: JSON.stringify(payload),
     });
 
     if (!response.ok) {
-      throw new Error(`Ollama API Error: ${response.status} ${response.statusText}`);
+      throw new Error(`API Error: ${response.status} ${response.statusText}`);
     }
 
     const result = await response.json();
-    const queryResult = result.message?.content || "No response from the model";
+    console.log(result);
+    const queryResult = result.choices[0]?.message?.content || "No response from the model";
 
     console.log("Generated SELECT Query:");
     console.log(queryResult);
@@ -112,11 +128,24 @@ export async function generateSelectQuery(schema: string, input: string) {
 
 // Function to create a Markdown table using a query and data
 async function createMarkdownTable(query: string, data: string) {
-  const apiUrl = Deno.env.get("OLLAMA_API_URL"); // Load API URL from .env
-  const model = Deno.env.get("OLLAMA_MODEL") || "qwen2.5-coder:14b"; // Default model fallback
+  const provider = Deno.env.get("API_PROVIDER");
+  let apiUrl;
+  let model;
+  let apiKey;
+  if (provider === "OA") {
+  apiUrl = Deno.env.get("OA_API_URL"); 
+  model = Deno.env.get("OA_MODEL");
+  apiKey = Deno.env.get("OA_API_KEY");
+  }
+  else if (provider === "OL"){
+  apiUrl = Deno.env.get("OL_API_URL"); 
+  model = Deno.env.get("OL_MODEL");
+  apiKey = Deno.env.get("OL_API_KEY");
+  }
+  apiUrl = apiUrl + "/v1/chat/completions";
 
   if (!apiUrl) {
-    console.error("Error: OLLAMA_API_URL is not set in the .env file.");
+    console.error("Error: API_URL is not set in the .env file.");
     return;
   }
 
@@ -136,23 +165,24 @@ async function createMarkdownTable(query: string, data: string) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "Authorization": `Bearer ${apiKey}`
       },
       body: JSON.stringify(payload),
     });
 
     if (!response.ok) {
-      throw new Error(`Ollama API responded with status: ${response.status}`);
+      throw new Error(`API responded with status: ${response.status}`);
     }
 
     const result = await response.json();
-    const markdownTable = result.message?.content || "No markdown table generated";
+    const markdownTable = result.choices[0]?.message?.content || "No markdown table generated";
 
     console.log("Generated Markdown Table:");
     console.log(markdownTable);
     const resp = extractMarkdownTable(markdownTable);
     return resp;
   } catch (error) {
-    console.error("Error communicating with Ollama API:", error.message);
+    console.error("Error communicating with API:", error.message);
   }
 }
 
@@ -163,4 +193,86 @@ export async function getMarkdownTable(daten: string, result: string) {
   const data = daten;
   const file = await createMarkdownTable(query, data);
   return file;
+}
+
+export async function getModels(){
+  const apiProvider = Deno.env.get("API_PROVIDER");
+  let apiKey;
+  let apiUrl;
+  let apfel;
+  console.log(apiProvider);
+  if (apiProvider == "OA"){
+    apiKey = Deno.env.get("OA_API_KEY");
+    apiUrl = Deno.env.get("OA_API_URL");
+    const requestUrl = apiUrl + "/v1/models";
+     const jooo = await fetch(requestUrl, { method: "GET", headers: {"Authorization": `Bearer ${apiKey}`}});
+ 
+      const juice = await jooo.json();
+   
+      apfel = juice.data; 
+  } 
+  else if (apiProvider == "OL"){
+    apiKey = Deno.env.get("OL_API_KEY");
+    apiUrl = Deno.env.get("OL_API_URL");
+    const requestUrl = apiUrl + "/api/tags";
+     const saft = await fetch(requestUrl); 
+     const juice = await saft.json();
+      apfel = juice.models; 
+  }
+  else{
+    apfel = "No Models"
+  }
+  const response = populate();
+  return response;
+}
+
+export async function getSQLQuery(input: string | null) {
+  const response = await generateSelectQuery(schema, input || "");
+  const apfelsaft = extractSQLSelect(response.toString());
+  return apfelsaft;
+}
+
+export function changeProvider(provider: string){
+  if (provider == "OA" || provider == "OL"){
+    Deno.env.set("API_PROVIDER", provider);
+    return JSON.stringify({provider});
+  } 
+  else{
+    return JSON.stringify({provider: "No Provider"});
+  }
+  
+}
+
+
+
+
+export async function populate(){
+  const models: model[] = [];
+  try{
+  const oaApiKey = Deno.env.get("OA_API_KEY");
+  const oaApiUrl = Deno.env.get("OA_API_URL");
+  const oaReqUrl = oaApiUrl + "/v1/models";
+  const oaResponse1 = await fetch(oaReqUrl, { method: "GET", headers: {"Authorization": `Bearer ${oaApiKey}`}});
+  const oaResponse = await oaResponse1.json();
+  for (const model of oaResponse.data){
+    models.push({modelName: model.id, provider: "OA"});
+  }
+  const olApiUrl = Deno.env.get("OL_API_URL");
+  const olReqUrl = olApiUrl + "/api/tags";
+  const olResponse1 = await fetch(olReqUrl);
+  const olResponse = await olResponse1.json();
+  for (const model of olResponse.models){
+    models.push({modelName: model.name, provider: "OL"});
+  }}
+  catch(e){
+    console.log(e);
+  }
+  
+  return JSON.stringify(models);
+}
+
+
+type model ={
+  modelName: string,
+  provider: string
 }

@@ -1,12 +1,13 @@
 import { DB } from 'https://deno.land/x/sqlite/mod.ts';
 import { route, type Route } from "@std/http/unstable-route";
-import { extractSQLSelect, getMarkdownTable, generateSelectQuery } from "./lib.ts";
+
+import { getMarkdownTable, getModels, getSQLQuery, changeProvider, setModel } from "./lib.ts";
 import "https://deno.land/x/dotenv@v3.2.2/load.ts";
 
 let debug = Deno.env.get("DEBUG");
 const DataBase = new DB('dev.db');
 
-const schema = "CREATE TABLE `categories` ( `CategoryID` INT NOT NULL UNIQUE PRIMARY KEY , `CategoryName` varchar(255) DEFAULT NULL, `Description` varchar(255) DEFAULT NULL ); CREATE TABLE `customers` ( `CustomerID` INT NOT NULL UNIQUE PRIMARY KEY, `CustomerName` varchar(255) DEFAULT NULL, `ContactName` varchar(255) DEFAULT NULL, `Address` varchar(255) DEFAULT NULL, `City` varchar(255) DEFAULT NULL, `PostalCode` varchar(255) DEFAULT NULL, `Country` varchar(255) DEFAULT NULL ); CREATE TABLE `employees` ( `EmployeeID` INT NOT NULL UNIQUE PRIMARY KEY, `LastName` varchar(255) DEFAULT NULL, `FirstName` varchar(255) DEFAULT NULL, `BirthDate` date DEFAULT NULL, `Photo` varchar(255) DEFAULT NULL, `Notes` text ); CREATE TABLE `orders` ( `OrderID` INT NOT NULL UNIQUE PRIMARY KEY, `CustomerID` INT DEFAULT NULL, `EmployeeID` INT DEFAULT NULL, `OrderDate` date DEFAULT NULL, `ShipperID` INT DEFAULT NULL, FOREIGN KEY (`CustomerID`) REFERENCES `customers` (`CustomerID`), FOREIGN KEY (`EmployeeID`) REFERENCES `employees` (`EmployeeID`), FOREIGN KEY (`ShipperID`) REFERENCES `shippers` (`ShipperID`) ); CREATE TABLE `order_details` ( `OrderDetailID` INT NOT NULL UNIQUE PRIMARY KEY, `OrderID` INT DEFAULT NULL, `ProductID` INT DEFAULT NULL, `Quantity` INT DEFAULT NULL, FOREIGN KEY (`OrderID`) REFERENCES `orders` (`OrderID`), FOREIGN KEY (`ProductID`) REFERENCES `products` (`ProductID`) ); CREATE TABLE `products` ( `ProductID` INT NOT NULL UNIQUE PRIMARY KEY, `ProductName` varchar(255) DEFAULT NULL, `SupplierID` INT DEFAULT NULL, `CategoryID` INT DEFAULT NULL, `Unit` varchar(255) DEFAULT NULL, `Price` double DEFAULT NULL, FOREIGN KEY (`CategoryID`) REFERENCES `categories` (`CategoryID`), FOREIGN KEY (`SupplierID`) REFERENCES `suppliers` (`SupplierID`) ); CREATE TABLE `shippers` ( `ShipperID` INT NOT NULL UNIQUE PRIMARY KEY, `ShipperName` varchar(255) DEFAULT NULL, `Phone` varchar(255) DEFAULT NULL ); CREATE TABLE `suppliers` ( `SupplierID` INT NOT NULL UNIQUE PRIMARY KEY, `SupplierName` varchar(255) DEFAULT NULL, `ContactName` varchar(255) DEFAULT NULL, `Address` varchar(255) DEFAULT NULL, `City` varchar(255) DEFAULT NULL, `PostalCode` varchar(255) DEFAULT NULL, `Country` varchar(255) DEFAULT NULL, `Phone` varchar(255) DEFAULT NULL );";
+
 
 const routes: Route[] = [
   {
@@ -44,10 +45,36 @@ const routes: Route[] = [
             return new Response("Model parameter is required", { status: 400 });
           }
         }
+        const result = setModel(model);
+        console.log(Deno.env.get("OA_MODEL"));
+        console.log(Deno.env.get("OL_MODEL"));
+        return new Response(result, { headers: { "Content-Type": "application/json" } });
+      }
 
-        Deno.env.set("OLLAMA_MODEL", model || "qwen2.5-coder:14b");
-        console.log("Model set to:", model);
-        return new Response(`Model set to: ${model}`);
+      return new Response("Method not allowed", { status: 405 });
+    },
+  },
+  {
+    method: ["GET", "HEAD"],
+    pattern: new URLPattern({ pathname: "/debug" }),
+    handler: (req: Request) => {
+      if (req.method === "HEAD") {
+        return new Response(null);
+      }
+      if (req.method === "GET") {
+        const url = new URL(req.url);
+        const debugParam = url.searchParams.get("debug");
+
+
+        if (debugParam === null) {
+          return new Response("Debug parameter is required", { status: 400 });
+        }
+
+        debug = debugParam;
+        console.log("Debug mode set to:", debug);
+        return new Response(`Debug mode set to: ${debug}`);
+
+
       }
 
       return new Response("Method not allowed", { status: 405 });
@@ -84,7 +111,9 @@ const routes: Route[] = [
         return new Response(null);
       }
       if (req.method === "GET") {
-        const html = await Deno.readFile("./public/index.html");
+
+        const html = await Deno.readFile("./public/new.html");
+
         return new Response(html, { headers: { "Content-Type": "text/html" } });
       }
 
@@ -92,17 +121,57 @@ const routes: Route[] = [
     },
   },
   {
-    method: ["GET", "HEAD"],
+    method: ["GET"],
     pattern: new URLPattern({ pathname: "/new" }),
     handler: async (req: Request) => {
-      if (req.method === "HEAD") {
-        return new Response(null);
-      }
       if (req.method === "GET") {
         const html = await Deno.readFile("./public/new.html");
         return new Response(html, { headers: { "Content-Type": "text/html" } });
       }
+  
+      return new Response("Method not allowed", { status: 405 });
+    },
+  },
+  {
+    method: ["GET"],
+    pattern: new URLPattern({ pathname: "/script.js" }),
+    handler: async (req: Request) => {
+      if (req.method === "GET") {
+        const script = await Deno.readFile("./public/script.js");
+        return new Response(script, { headers: { "Content-Type": "application/javascript" } });
+      }
+  
+      return new Response("Method not allowed", { status: 405 });
+    },
+  },
+  {
+    method: ["GET"],
+    pattern: new URLPattern({ pathname: "/style.css" }),
+    handler: async (req: Request) => {
+      if (req.method === "GET") {
+        const styles = await Deno.readFile("./public/style.css");
+        return new Response(styles, { headers: { "Content-Type": "text/css" } });
+      }
+  
+      return new Response("Method not allowed", { status: 405 });
+    },
+  },
+  {
+    method: ["GET"],
+    pattern: new URLPattern({ pathname: "/provider" }),
+    handler: (req: Request) => {
+      if (req.method === "GET") {
+        const url = new URL(req.url);
+        const provider = url.searchParams.get("provider");
 
+        if (provider === null) {
+          return new Response("Provider parameter is required", { status: 400 });
+        }
+        const response = changeProvider(provider); 
+        
+        return new Response(response, { headers: { "Content-Type": "text/css" } });
+      }
+  
       return new Response("Method not allowed", { status: 405 });
     },
   },
@@ -116,6 +185,22 @@ const routes: Route[] = [
       if (req.method === "GET") {
         const html = await Deno.readFile("./public/logo.png");
         return new Response(html, { headers: { "Content-Type": "image/png" } });
+      }
+
+      return new Response("Method not allowed", { status: 405 });
+    },
+  },
+  {
+    method: ["GET", "HEAD"],
+    pattern: new URLPattern({ pathname: "/getModels" }),
+    handler: async (req: Request) => {
+      if (req.method === "HEAD") {
+        return new Response(null);
+      }
+      if (req.method === "GET") {
+        const result = await getModels();
+        console.log(result);
+        return new Response(result, { headers: { "Content-Type": "application/json" } });
       }
 
       return new Response("Method not allowed", { status: 405 });
@@ -141,14 +226,38 @@ async function apiCall(input: string | null) {
   }
 }
 
-async function getSQLQuery(input: string | null) {
-  const response = await generateSelectQuery(schema, input || "");
-  const apfelsaft = extractSQLSelect(response.toString());
-  return apfelsaft;
-}
 
 function defaultHandler(_req: Request) {
   return new Response("Not found", { status: 404 });
 }
 
+function checkProvider(model:string){
+  const find = DataBase.query(`SELECT provider FROM models WHERE modelName = '${model}'`);
+  if (find.length === 0){
+    return "Model not found";
+  }
+  //console.log(find);
+  return find;
+}
+
+function setModel(model:string){
+ const provider = checkProvider(model);
+  if (provider === "Model not found"){
+    return "Model not found";
+  }
+ 
+  if (provider[0] == "OA"){
+    Deno.env.set("OA_MODEL", model);
+    Deno.env.set("API_PROVIDER", "OA");
+    return `Model set to ${model} from OA`;
+  }
+  else if (provider[0] == "OL"){
+    Deno.env.set("OL_MODEL", model);
+    Deno.env.set("API_PROVIDER", "OL");
+    return `Model set to ${model} from OL`;
+  }
+
+}
+
 Deno.serve(route(routes, defaultHandler));
+
