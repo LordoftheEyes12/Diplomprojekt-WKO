@@ -1,10 +1,12 @@
 import { DB } from 'https://deno.land/x/sqlite/mod.ts';
 import { route, type Route } from "@std/http/unstable-route";
+
 import { getMarkdownTable, getModels, getSQLQuery, changeProvider, setModel } from "./lib.ts";
 import "https://deno.land/x/dotenv@v3.2.2/load.ts";
 
 let debug = Deno.env.get("DEBUG");
 const DataBase = new DB('dev.db');
+
 
 
 const routes: Route[] = [
@@ -63,6 +65,32 @@ const routes: Route[] = [
         const url = new URL(req.url);
         const debugParam = url.searchParams.get("debug");
 
+
+        if (debugParam === null) {
+          return new Response("Debug parameter is required", { status: 400 });
+        }
+
+        debug = debugParam;
+        console.log("Debug mode set to:", debug);
+        return new Response(`Debug mode set to: ${debug}`);
+
+
+      }
+
+      return new Response("Method not allowed", { status: 405 });
+    },
+  },
+  {
+    method: ["GET", "HEAD"],
+    pattern: new URLPattern({ pathname: "/debug" }),
+    handler: (req: Request) => {
+      if (req.method === "HEAD") {
+        return new Response(null);
+      }
+      if (req.method === "GET") {
+        const url = new URL(req.url);
+        const debugParam = url.searchParams.get("debug");
+
         if (debugParam === null) {
           return new Response("Debug parameter is required", { status: 400 });
         }
@@ -83,7 +111,9 @@ const routes: Route[] = [
         return new Response(null);
       }
       if (req.method === "GET") {
+
         const html = await Deno.readFile("./public/new.html");
+
         return new Response(html, { headers: { "Content-Type": "text/html" } });
       }
 
@@ -197,10 +227,10 @@ async function apiCall(input: string | null) {
 }
 
 
-
 function defaultHandler(_req: Request) {
   return new Response("Not found", { status: 404 });
 }
+
 function checkProvider(model:string){
   const find = DataBase.query(`SELECT provider FROM models WHERE modelName = '${model}'`);
   if (find.length === 0){
