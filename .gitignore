@@ -4,3 +4,4 @@ test.sql
 text.sql
 test.ts
 .env
+models.db

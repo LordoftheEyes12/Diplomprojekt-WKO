@@ -1,7 +1,8 @@
 import { DB } from 'https://deno.land/x/sqlite/mod.ts';
 import { route, type Route } from "@std/http/unstable-route";
+import { seedDB } from "./seedDB.ts";
 
-import { getMarkdownTable, getModels, getSQLQuery, changeProvider } from "./lib.ts";
+import { getMarkdownTable, getModels, getSQLQuery, changeProvider, setModel } from "./lib.ts";
 import "https://deno.land/x/dotenv@v3.2.2/load.ts";
 
 let debug = Deno.env.get("DEBUG");
@@ -82,36 +83,14 @@ const routes: Route[] = [
   },
   {
     method: ["GET", "HEAD"],
-    pattern: new URLPattern({ pathname: "/debug" }),
-    handler: (req: Request) => {
-      if (req.method === "HEAD") {
-        return new Response(null);
-      }
-      if (req.method === "GET") {
-        const url = new URL(req.url);
-        const debugParam = url.searchParams.get("debug");
-
-        if (debugParam === null) {
-          return new Response("Debug parameter is required", { status: 400 });
-        }
-
-        debug = debugParam;
-        console.log("Debug mode set to:", debug);
-        return new Response(`Debug mode set to: ${debug}`);
-      }
-
-      return new Response("Method not allowed", { status: 405 });
-    },
-  },
-  {
-    method: ["GET", "HEAD"],
     pattern: new URLPattern({ pathname: "/" }),
     handler: async (req: Request) => {
       if (req.method === "HEAD") {
         return new Response(null);
       }
       if (req.method === "GET") {
-
+        const DBseed = await seedDB();
+        console.log(DBseed);
         const html = await Deno.readFile("./public/new.html");
 
         return new Response(html, { headers: { "Content-Type": "text/html" } });
@@ -231,33 +210,6 @@ function defaultHandler(_req: Request) {
   return new Response("Not found", { status: 404 });
 }
 
-function checkProvider(model:string){
-  const find = DataBase.query(`SELECT provider FROM models WHERE modelName = '${model}'`);
-  if (find.length === 0){
-    return "Model not found";
-  }
-  //console.log(find);
-  return find;
-}
-
-function setModel(model:string){
- const provider = checkProvider(model);
-  if (provider === "Model not found"){
-    return "Model not found";
-  }
- 
-  if (provider[0] == "OA"){
-    Deno.env.set("OA_MODEL", model);
-    Deno.env.set("API_PROVIDER", "OA");
-    return `Model set to ${model} from OA`;
-  }
-  else if (provider[0] == "OL"){
-    Deno.env.set("OL_MODEL", model);
-    Deno.env.set("API_PROVIDER", "OL");
-    return `Model set to ${model} from OL`;
-  }
-
-}
 
 Deno.serve(route(routes, defaultHandler));
 
