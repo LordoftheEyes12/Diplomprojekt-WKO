@@ -199,7 +199,7 @@ const routes: Route[] = [
       }
       if (req.method === "GET") {
         const result = await getModels();
-        console.log(result);
+        
         return new Response(result, { headers: { "Content-Type": "application/json" } });
       }
 

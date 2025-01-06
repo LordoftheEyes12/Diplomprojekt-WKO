@@ -1,4 +1,5 @@
-async function populateModelDropdown() {
+async function populateModelDropdown() 
+{
     const modelDropdown = document.getElementById('modelDropdown');
     const loadingAnimation = document.getElementById('loadingAnimation');
     loadingAnimation.style.display = 'block';
@@ -131,6 +132,6 @@ document.getElementById('sendButton').addEventListener('click', async () => {
     });
 
         
-        window.onload = populateModelDropdown;
+window.onload = populateModelDropdown;
 
         

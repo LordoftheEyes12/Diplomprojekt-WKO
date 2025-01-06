@@ -84,6 +84,7 @@ export async function generateSelectQuery(schema: string, input: string) {
   apiUrl = Deno.env.get("OL_API_URL"); 
   model = Deno.env.get("OL_MODEL");
   apiKey = Deno.env.get("OL_API_KEY");
+  
   }
   apiUrl = apiUrl + "/v1/chat/completions";
   console.log("model", model);
@@ -115,7 +116,7 @@ export async function generateSelectQuery(schema: string, input: string) {
     }
 
     const result = await response.json();
-    console.log(result);
+    //console.log(result);
     const queryResult = result.choices[0]?.message?.content || "No response from the model";
 
     console.log("Generated SELECT Query:");
