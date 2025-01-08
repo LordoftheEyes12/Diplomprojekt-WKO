@@ -32,9 +32,11 @@ async function populateModelDropdown()
 document.getElementById('sendButton').addEventListener('click', async () => {
     const inputField = document.getElementById('inputField');
     const output = document.getElementById('output');
+    const debugIndicator = document.getElementById('debugIndicator');
     const loadingAnimation = document.getElementById('loadingAnimation');
 
     output.innerHTML = '';
+    debugIndicator.innerHTML = '';
     const userInput = inputField.value;
 
     if (!userInput) 
@@ -53,24 +55,35 @@ document.getElementById('sendButton').addEventListener('click', async () => {
             }
 
             const jsonResponse = await response.json();
+            const isDebugMode = jsonResponse.debug === "1";
 
-            const renderSection = (title, content) => {
-            const section = document.createElement('div');
-            section.className = 'section';
+            // Display debug mode indicator
+            if (isDebugMode) {
+                debugIndicator.textContent = 'Reply sent in DEBUG MODE';
+                debugIndicator.style.color = '#ff9800';
+            }
 
-            const heading = document.createElement('h3');
-            heading.textContent = title;
+            const renderSection = (title, content, isDebugOnly = false) => {
+                if (!content || (isDebugOnly && !isDebugMode)) return;
 
-            const pre = document.createElement('pre');
-            pre.textContent = content;
+                const section = document.createElement('div');
+                section.className = 'section';
 
-            section.appendChild(heading);
-            section.appendChild(pre);
-            output.appendChild(section);
+                if (isDebugOnly) section.classList.add('debug-mode');
+
+                const heading = document.createElement('h3');
+                heading.textContent = title;
+
+                const pre = document.createElement('pre');
+                pre.textContent = content;
+
+                section.appendChild(heading);
+                section.appendChild(pre);
+                output.appendChild(section);
             };
 
-            renderSection('Input', jsonResponse.input);
-            renderSection('Result', jsonResponse.result);
+            renderSection('Input', jsonResponse.input, true);
+            renderSection('Result', jsonResponse.result, true);
 
             if (Array.isArray(jsonResponse.daten))
             {
@@ -82,19 +95,21 @@ document.getElementById('sendButton').addEventListener('click', async () => {
                 renderSection('Daten', 'Invalid format');
             }
 
-            const markdownContainer = document.createElement('div');
-            markdownContainer.className = 'section';
+            if (jsonResponse.mdTable) {
+                const markdownContainer = document.createElement('div');
+                markdownContainer.className = 'section';
 
-            const markdownHeading = document.createElement('h3');
-            markdownHeading.textContent = 'Markdown Table';
+                const markdownHeading = document.createElement('h3');
+                markdownHeading.textContent = 'Markdown Table';
 
-            const markdownContent = document.createElement('div');
-            markdownContent.className = 'markdown';
-            markdownContent.innerHTML = marked.parse(jsonResponse.mdTable || '');
+                const markdownContent = document.createElement('div');
+                markdownContent.className = 'markdown';
+                markdownContent.innerHTML = marked.parse(jsonResponse.mdTable || '');
 
-            markdownContainer.appendChild(markdownHeading);
-            markdownContainer.appendChild(markdownContent);
-            output.appendChild(markdownContainer);
+                markdownContainer.appendChild(markdownHeading);
+                markdownContainer.appendChild(markdownContent);
+                output.appendChild(markdownContainer);
+            }
 
         } catch (error) 
         {
@@ -133,5 +148,3 @@ document.getElementById('sendButton').addEventListener('click', async () => {
 
         
 window.onload = populateModelDropdown;
-
-        

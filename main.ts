@@ -1,8 +1,6 @@
 import { DB } from 'https://deno.land/x/sqlite/mod.ts';
 import { route, type Route } from "@std/http/unstable-route";
-import { seedDB } from "./seedDB.ts";
-
-import { getMarkdownTable, getModels, getSQLQuery, changeProvider, setModel } from "./lib.ts";
+import { getMarkdownTable,  getSQLQuery, changeProvider, getModels, setModel, populateDB  } from "./lib.ts";
 import "https://deno.land/x/dotenv@v3.2.2/load.ts";
 
 let debug = Deno.env.get("DEBUG");
@@ -89,7 +87,7 @@ const routes: Route[] = [
         return new Response(null);
       }
       if (req.method === "GET") {
-        const DBseed = await seedDB();
+        const DBseed = await populateDB();
         console.log(DBseed);
         const html = await Deno.readFile("./public/new.html");
 
