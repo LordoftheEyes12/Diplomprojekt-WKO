@@ -7,7 +7,6 @@ let debug = Deno.env.get("DEBUG");
 const DataBase = new DB('dev.db');
 
 
-
 const routes: Route[] = [
   {
     method: ["GET", "HEAD"],
