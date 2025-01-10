@@ -124,7 +124,7 @@ export async function listModels(){
   const olResponse1 = await fetch(olReqUrl);
   const olResponse = await olResponse1.json();
   for (const model of olResponse.models){
-    models.push({modelName: model.name, provider: "OL"});
+    models.push({modelName: model.name.replace(/:latest$/, ''), provider: "OL"});
   }}
   catch(e){
     console.log(e);
