@@ -6,7 +6,7 @@ async function populateModelDropdown()
         
             
     try {
-    const response = await fetch('http://localhost:8000/getModels'); 
+    const response = await fetch('http://localhost:3741/getModels'); 
     if (!response.ok) {
         throw new Error(`Failed to fetch models with status ${response.status}`);
     }
@@ -48,7 +48,7 @@ document.getElementById('sendButton').addEventListener('click', async () => {
         loadingAnimation.style.display = 'block';
 
         try {
-            const response = await fetch(`http://localhost:8000/api?Input=${encodeURIComponent(userInput)}`);
+            const response = await fetch(`http://localhost:3741/api?Input=${encodeURIComponent(userInput)}`);
             if (!response.ok) 
             {
                 throw new Error(`API request failed with status ${response.status}`);
@@ -130,7 +130,7 @@ document.getElementById('sendButton').addEventListener('click', async () => {
 
         try
         {
-            const response = await fetch(`http://localhost:8000/model?Model=${encodeURIComponent(selectedModel)}`);
+            const response = await fetch(`http://localhost:3741/model?Model=${encodeURIComponent(selectedModel)}`);
             if (!response.ok) 
             {
                 throw new Error(`Model selection failed with status ${response.status}`);
