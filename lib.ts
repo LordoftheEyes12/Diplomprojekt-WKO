@@ -153,6 +153,7 @@ async function createMarkdownTable(query: string, data: string) {
     console.error("Error: API_URL is not set in the .env file.");
     return;
   }
+ 
 
   const payload = {
     model: model,

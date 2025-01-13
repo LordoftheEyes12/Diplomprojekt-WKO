@@ -36,11 +36,12 @@ export function changeProvider(provider: string){
    
 function checkProvider(model:string)
 {
-    const find = modelDB.query(`SELECT provider FROM models WHERE modelName = '${model}'`);
+  let find = modelDB.query(`SELECT provider FROM models WHERE modelName = '${model}'`);
     if (find.length === 0){
+      find = modelDB.query(`SELECT provider FROM models WHERE modelName = '${model}:latest'`);
       return "Model not found";
     }
-    return find;
+  return find;
 }
   
 export async function populateDB(){
@@ -70,10 +71,11 @@ export async function populateDB(){
         const olResponse = await olResponse1.json();
         for (const model of olResponse.models)
         {
+            console.log(model.name);
             models.push({modelName: model.name, provider: "OL"});
             try
             {
-                addModel(model.name, "OL");
+                addModel( model.name.replace(/:latest$/, ''), "OL");
             }
             catch(_e){
                 errorcount++;

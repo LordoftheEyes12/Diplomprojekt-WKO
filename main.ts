@@ -3,6 +3,7 @@ import { route, type Route } from "@std/http/unstable-route";
 import { getMarkdownTable,  getSQLQuery, changeProvider, getModels, setModel, populateDB  } from "./lib.ts";
 import "https://deno.land/x/dotenv@v3.2.2/load.ts";
 
+
 let debug = Deno.env.get("DEBUG");
 const DataBase = new DB('dev.db');
 
