@@ -160,7 +160,7 @@ async function createMarkdownTable(query: string, data: string) {
     messages: [
       {
         role: "user",
-        content: `using this SQL query: ${query} and this result: ${data} create a markdown table that contains meaningful headings and the data. only return the table syntax filled with the data that can be used with any common Markdown Readers`,
+        content: `using this SQL query: ${query} and this result: ${data} create a markdown table that contains meaningful headings and the data. only return the table syntax filled with the data that can be used with any common Markdown Readers. the database uses this schema: ${schema}`,
       },
     ],
     stream: false,
@@ -218,4 +218,10 @@ export function changeProvider(provider: string){
     return JSON.stringify({provider: "No Provider"});
   }
   
+}
+
+export function filterThought(input: string): string {
+  const thinkBlockPattern = XRegExp('<think[^>]*>[\\s\\S]*?</think>', 'g');
+  const cleanedString = XRegExp.replace(input, thinkBlockPattern, '');
+  return cleanedString;
 }

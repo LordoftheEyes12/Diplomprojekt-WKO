@@ -1,6 +1,6 @@
 import { DB } from 'https://deno.land/x/sqlite/mod.ts';
 import { route, type Route } from "@std/http/unstable-route";
-import { getMarkdownTable,  getSQLQuery, changeProvider, getModels, setModel, populateDB  } from "./lib.ts";
+import { getMarkdownTable,  getSQLQuery, changeProvider, getModels, setModel, populateDB, filterThought } from "./lib.ts";
 import "https://deno.land/x/dotenv@v3.2.2/load.ts";
 
 
@@ -189,7 +189,10 @@ async function apiCall(input: string | null) {
   console.log("Input value:", input);
   let mdTable = "";
   const result = await getSQLQuery(input) || "";
-  const daten = DataBase.query(result);
+  const query1 = filterThought(result);
+  console.log("result?")
+  console.log("\n\n", query1);
+  const daten = DataBase.query(query1);
   console.log(daten);
   if (Object.keys(daten).length === 0) {
     mdTable = "no data";
