@@ -1,6 +1,6 @@
 import { DB } from 'https://deno.land/x/sqlite/mod.ts';
 import { route, type Route } from "@std/http/unstable-route";
-import { getMarkdownTable,  getSQLQuery, changeProvider, getModels, setModel, populateDB, filterThought } from "./lib.ts";
+import { getMarkdownTable,  getSQLQuery, changeProvider, getModels, setModel, populateDB, filterThought,answerDatabaseQuestion } from "./lib.ts";
 import "https://deno.land/x/dotenv@v3.2.2/load.ts";
 
 
@@ -22,6 +22,24 @@ const routes: Route[] = [
 
         const result = await apiCall(input);
         return new Response(result, { headers: { "Content-Type": "application/json" } });
+      }
+
+      return new Response("Method not allowed", { status: 405 });
+    },
+  },
+  {
+    method: ["GET", "HEAD"],
+    pattern: new URLPattern({ pathname: "/dataset" }),
+    handler: async (req: Request) => {
+      if (req.method === "HEAD") {
+        return new Response(null);
+      }
+      if (req.method === "GET") {
+        const url = new URL(req.url);
+        const input = url.searchParams.get("Input");
+
+        const result = await answerDatabaseQuestion(input||"Explain the Database to me");
+        return new Response(result, { headers: { "Content-Type": "text/plain" } });
       }
 
       return new Response("Method not allowed", { status: 405 });

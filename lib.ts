@@ -225,3 +225,61 @@ export function filterThought(input: string): string {
   const cleanedString = XRegExp.replace(input, thinkBlockPattern, '');
   return cleanedString;
 }
+
+export async function answerDatabaseQuestion(input: string) {
+  const provider = Deno.env.get("API_PROVIDER");
+  let apiUrl;
+  let model;
+  let apiKey;
+  if (provider === "OA") {
+  apiUrl = Deno.env.get("OA_API_URL"); 
+  model = Deno.env.get("OA_MODEL");
+  apiKey = Deno.env.get("OA_API_KEY");
+  }
+  else if (provider === "OL"){
+  apiUrl = Deno.env.get("OL_API_URL"); 
+  model = Deno.env.get("OL_MODEL");
+  apiKey = Deno.env.get("OL_API_KEY");
+  
+  }
+  apiUrl = apiUrl + "/v1/chat/completions";
+  console.log("model", model);
+  console.log("apiUrl", apiUrl);
+  if (!apiUrl) {
+    console.error("Error: API_URL is not set in the .env file.");
+    return;
+  }
+
+
+  
+  const payload = {
+    model: model,
+    messages: [{ role: "user", content: `using the SQLite database with this schema\n schema: ${schema} \n answer the following query: ${input}` }],
+    stream: false,
+  };
+
+  try {
+    const response = await fetch(apiUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${apiKey}`
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      throw new Error(`API Error: ${response.status} ${response.statusText}`);
+    }
+
+    const result = await response.json();
+    //console.log(result);
+    const queryResult = result.choices[0]?.message?.content || "No response from the model";
+
+    console.log("Generated SELECT Query:");
+    console.log(queryResult);
+    return queryResult;
+  } catch (error) {
+    console.error("Error generating SELECT query:", error.message);
+  }
+}
