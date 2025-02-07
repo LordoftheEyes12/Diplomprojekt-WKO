@@ -33,6 +33,7 @@ document.getElementById('sendButton').addEventListener('click', async () => {
     output.innerHTML = '';
     debugIndicator.innerHTML = '';
     const userInput = inputField.value;
+    csvButton.classList.add('d-none'); // Hide CSV button immediately
 
     if (!userInput) {
         output.textContent = 'Please enter some input.';
@@ -82,6 +83,29 @@ document.getElementById('sendButton').addEventListener('click', async () => {
         } else {
             renderSection('Daten', 'Invalid format');
         }
+
+        // In the sendButton click handler, modify the CSV content generation:
+        if (Array.isArray(jsonResponse.daten) && jsonResponse.daten.length > 0) {
+            // Extract headers from markdown table if available
+            let headers = [];
+            if (jsonResponse.mdTable) {
+                const firstLine = jsonResponse.mdTable.split('\n')[0];
+                headers = firstLine.split('|')
+                    .map(h => h.trim())
+                    .filter(h => h && !h.startsWith('---')); // Exclude markdown separator line
+            }
+
+            // Create CSV content with headers
+            const rows = jsonResponse.daten.map(row => row.join(','));
+            if (headers.length > 0) {
+                rows.unshift(headers.join(',')); // Add headers as first line
+            }
+    
+            const csvContent = rows.join('\n');
+            csvButton.dataset.csv = csvContent;
+            csvButton.classList.remove('d-none');
+        }
+
 
         if (jsonResponse.mdTable) {
             const markdownContainer = document.createElement('div');
@@ -190,6 +214,9 @@ document.getElementById('datasetButton').addEventListener('click', async () => {
     const debugIndicator = document.getElementById('debugIndicator');
     const loadingAnimation = document.getElementById('loadingAnimation');
 
+     // Hide CSV button when structure request is made
+     document.getElementById('csvButton').classList.add('d-none');
+
     output.innerHTML = '';
     debugIndicator.innerHTML = '';
     const userInput = inputField.value;
@@ -235,6 +262,23 @@ document.getElementById('datasetButton').addEventListener('click', async () => {
     } finally {
         loadingAnimation.classList.add('d-none');
     }
+});
+
+
+document.getElementById('csvButton').addEventListener('click', function() {
+    const csvContent = this.dataset.csv;
+    if (!csvContent) return;
+    
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'data.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
 });
 
 window.onload = populateModelDropdown;
