@@ -3,34 +3,81 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Dimplomprojekt testwebsite</title>
+    <title>Dimplomprojekt Website</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
-
 </head>
-<body>
-    <div class="logo">
-        <img src="logo.png" alt="Inhouse Logo">
+<body class="p-3">
+    <nav class="navbar navbar-expand-lg navbar-dark mb-3">
+        <div class="container-fluid">
+            <h1 class="navbar-brand mb-0">
+                SwiftQuery Diplomprojekt
+                <img src="logo.png" alt="Inhouse Logo" class="logo">
+            </h1>
+            <button class="btn" id="settingsButton">Settings</button>
+        </div>
+    </nav>
+
+    <div class="offcanvas offcanvas-end" id="settingsMenu">
+        <div class="offcanvas-header">
+            <h3 class="offcanvas-title">Settings</h3>
+            <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas"></button>
+        </div>
+        <div class="offcanvas-body">
+            <div class="mb-3">
+                <label for="backgroundColorPicker" class="form-label">Background Color:</label>
+                <input type="color" class="form-control form-control-color" id="backgroundColorPicker" value="#121212">
+            </div>
+            <div class="mb-3">
+                <label for="textColorPicker" class="form-label">Standard Text Color:</label>
+                <input type="color" class="form-control form-control-color" id="textColorPicker" value="#ffffff">
+            </div>
+            <div class="mb-3">
+                <label for="headingColorPicker" class="form-label">Heading Color:</label>
+                <input type="color" class="form-control form-control-color" id="headingColorPicker" value="#ffffff">
+            </div>
+            <div class="mb-3">
+                <label for="buttonColorPicker" class="form-label">Button Color:</label>
+                <input type="color" class="form-control form-control-color" id="buttonColorPicker" value="#ffffff">
+            </div>
+            <div class="mb-3">
+                <label for="textSizeSlider" class="form-label">Text Size:</label>
+                <input type="range" class="form-range" id="textSizeSlider" min="10" max="30" value="16">
+                <span id="textSizeValue" class="form-text">16px</span>
+            </div>
+        </div>
     </div>
-    <h1>SwiftQuery Diplomprojekt</h1>
-    <div id="debugIndicator"></div>
-    <p>Enter natural language query:</p>
-    <input type="text" id="inputField" placeholder="Enter your input here...">
-    <br><br>
-    <button id="sendButton">Send Request</button>
 
-    <p>Select a model:</p>
-    <select id="modelDropdown"></select>
-    <button id="selectModelButton">Select Model</button>
+    <div class="container-fluid">
+        <div id="debugIndicator" class="mb-3"></div>
+        
+        <div class="mb-3">
+            <label class="form-label">Enter natural language query:</label>
+            <input type="text" class="form-control" id="inputField" placeholder="Enter your input here...">
+        </div>
+        
+        <div class="mb-3">
+            <button class="btn btn-primary" id="sendButton">SQL Request</button>
+            <button class="btn btn-primary" id="datasetButton">Structure Question</button>
+        </div>
 
-    <div id="loadingAnimation"></div>
+        <div class="row g-3 mb-3">
+            <div class="col-md-6">
+                <label class="form-label">Select a model:</label>
+                <select class="form-select" id="modelDropdown"></select>
+            </div>
+            <div class="col-md-6 d-flex align-items-end">
+                <button class="btn btn-primary" id="selectModelButton">Select Model</button>
+            </div>
+        </div>
 
-    <div class="output" id="output"></div>
+        <div id="loadingAnimation" class="d-none"></div>
 
+        <div class="output" id="output"></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.3.0/marked.min.js"></script>
-
     <script src="script.js" defer></script>
- 
-
 </body>
 </html>
