@@ -1,0 +1,9 @@
+version: "3"
+
+services:
+  web:
+    build: .
+    container_name: diplomprojekt
+    image: deno-image
+    ports:
+      - "3741:3741"
