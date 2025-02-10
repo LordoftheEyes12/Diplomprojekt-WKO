@@ -274,7 +274,8 @@ document.getElementById('csvButton').addEventListener('click', function() {
     const url = URL.createObjectURL(blob);
     
     link.setAttribute('href', url);
-    link.setAttribute('download', 'data.csv');
+    const name = Date.now().to
+    link.setAttribute('download', `${name}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);

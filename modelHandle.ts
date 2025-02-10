@@ -3,6 +3,7 @@ import "https://deno.land/x/dotenv@v3.2.2/load.ts";
 
 const modelDB = new DB("models.db");
 
+
 export function setModel(model:string)
 {
     const provider = checkProvider(model);
@@ -47,7 +48,9 @@ function checkProvider(model:string)
 export async function populateDB(){
     let errorcount = 0;
     const models: model[] = [];
+    modelDB.execute("CREATE TABLE IF NOT EXISTS models (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, modelName TEXT, provider TEXT); ")
     try{
+        try{
         const oaApiKey = Deno.env.get("OA_API_KEY");
         const oaApiUrl = Deno.env.get("OA_API_URL");
         const oaReqUrl = oaApiUrl + "/v1/models";
@@ -64,7 +67,11 @@ export async function populateDB(){
                 errorcount++;
                 continue;
             }
+        }}
+        catch(e){
+          console.log(e);
         }
+        try{
         const olApiUrl = Deno.env.get("OL_API_URL");
         const olReqUrl = olApiUrl + "/api/tags";
         const olResponse1 = await fetch(olReqUrl);
@@ -82,6 +89,9 @@ export async function populateDB(){
                 continue;
             }
         }
+      }catch(e){
+        console.log(e);
+      }
     }
     catch(e)
     {
@@ -113,14 +123,19 @@ function addModel(model: string, provider: string)
 export async function listModels(){
   const models: model[] = [];
   try{
-  const oaApiKey = Deno.env.get("OA_API_KEY");
-  const oaApiUrl = Deno.env.get("OA_API_URL");
-  const oaReqUrl = oaApiUrl + "/v1/models";
+    try{
+    const oaApiKey = Deno.env.get("OA_API_KEY");
+    const oaApiUrl = Deno.env.get("OA_API_URL");
+    const oaReqUrl = oaApiUrl + "/v1/models";
   const oaResponse1 = await fetch(oaReqUrl, { method: "GET", headers: {"Authorization": `Bearer ${oaApiKey}`}});
   const oaResponse = await oaResponse1.json();
   for (const model of oaResponse.data){
     models.push({modelName: model.id, provider: "OA"});
+  }}
+  catch(e){
+    console.log(e);
   }
+  try{
   const olApiUrl = Deno.env.get("OL_API_URL");
   const olReqUrl = olApiUrl + "/api/tags";
   const olResponse1 = await fetch(olReqUrl);
@@ -128,6 +143,11 @@ export async function listModels(){
   for (const model of olResponse.models){
     models.push({modelName: model.name.replace(/:latest$/, ''), provider: "OL"});
   }}
+  catch(e){
+    console.log(e);
+  }
+}
+  
   catch(e){
     console.log(e);
   }

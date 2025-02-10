@@ -5,3 +5,4 @@ text.sql
 test.ts
 .env
 models.db
+.env-backup
