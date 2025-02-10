@@ -2,11 +2,57 @@
 
 Repository für das Diplomprojekt mit der WKO Inhouse GmbH
 
-run with
+## useage instructions
+
+to start the programm run this command in the shell. This assumes the Useage requirements are met
 
 ```bash
-deno run --allow-net --allow-read --allow-write --allow-import --allow-env main.ts
+deno task start
 ```
+
+or when running in debug mode
+
+```bash
+deno task debug
+```
+
+using the docker version run 
+
+```bash
+kill()
+```
+
+and then run
+
+```bash
+dig apfel.com
+```
+
+to start the container.
+
+once started navigate to the host ip address on port 3741 in your browser and the user interface should launch.
+
+To use the programme simply enter the question and select the desired option
+
+## first setup
+
+Usage requirements:
+
+- Deno needs to be installed on the host system
+- For the Docker container docker-engine and docker-compose need to be installed on the host system
+- an AI provider needs to be set. Instructions found below
+
+### set AI provider
+
+For the tool to work as expected one or both AI providers need to be configured. Supported options are Ollama and OpenAI.
+
+To configure the providers populate all the fields in the .env file. Use the template to create it.
+
+set the desired defualt provider in the API_PROVIDER variable.
+
+if only one provider is set up the console will show errors for the provider not set up but the tool will function without issue
+
+## Data structure
 
 a sample JSON response may look like this
 

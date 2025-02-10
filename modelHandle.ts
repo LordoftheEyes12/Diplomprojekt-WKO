@@ -48,7 +48,7 @@ function checkProvider(model:string)
 export async function populateDB(){
     let errorcount = 0;
     const models: model[] = [];
-    modelDB.execute("CREATE TABLE IF NOT EXISTS models (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, modelName TEXT, provider TEXT); ")
+    modelDB.execute("CREATE TABLE IF NOT EXISTS models (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, modelName TEXT UNIQUE, provider TEXT); ")
     try{
         try{
         const oaApiKey = Deno.env.get("OA_API_KEY");
