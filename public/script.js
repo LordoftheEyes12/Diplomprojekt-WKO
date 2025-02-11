@@ -218,6 +218,12 @@ document.getElementById('buttonColorPicker').addEventListener('input', (event) =
     });
 });
 
+document.getElementById('buttonBgColorPicker').addEventListener('input', (event) => {
+    const buttonBgColor = event.target.value;
+    document.documentElement.style.setProperty('--button-bg-color', buttonBgColor);
+});
+
+
 document.getElementById('datasetButton').addEventListener('click', async () => {
     const inputField = document.getElementById('inputField');
     const output = document.getElementById('output');
