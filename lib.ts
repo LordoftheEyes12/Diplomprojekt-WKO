@@ -66,13 +66,13 @@ export function buildJsonResponse(markdownTable: string): string {
       }
   };
 
-  // Convert to JSON string
+ 
   return JSON.stringify(jsonResponse, null, 2);
 }
 
 
 
-// Function to generate a SELECT query with API
+
 export async function generateSelectQuery(schema: string, input: string) {
   const provider = Deno.env.get("API_PROVIDER");
   let apiUrl;
@@ -131,7 +131,7 @@ export async function generateSelectQuery(schema: string, input: string) {
   }
 }
 
-// Function to create a Markdown table using a query and data
+
 async function createMarkdownTable(query: string, data: string) {
   const provider = Deno.env.get("API_PROVIDER");
   let apiUrl;
