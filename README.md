@@ -19,13 +19,14 @@ deno task debug
 using the docker version run
 
 ```bash
-kill()
+docker build -t diplomprojekt .
 ```
 
 and then run
 
 ```bash
-docker compose up -d
+docker run --env-file docker.env -it --rm -p 3741:3741 diplomprojekt
+
 ```
 
 to start the container.

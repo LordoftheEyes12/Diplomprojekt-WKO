@@ -1,11 +1,17 @@
-FROM denoland/deno
+FROM denoland/deno:alpine
 
-EXPOSE 3741
+
+RUN apk add --no-cache git
+
 
 WORKDIR /app
 
-ADD . /app
 
-#RUN deno install --entrypoint main.ts
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 
-CMD ["run",  "--allow-net", "--allow-import", "--allow-read", "--allow-write", "--allow-env", "main.ts"]
+
+EXPOSE 3741
+
+
+ENTRYPOINT ["/entrypoint.sh"]

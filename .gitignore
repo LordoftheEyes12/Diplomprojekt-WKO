@@ -6,3 +6,4 @@ test.ts
 .env
 models.db
 .env-backup
+docker.env
