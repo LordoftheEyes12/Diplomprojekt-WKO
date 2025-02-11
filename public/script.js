@@ -2,8 +2,7 @@ async function populateModelDropdown() {
     const modelDropdown = document.getElementById('modelDropdown');
     const loadingAnimation = document.getElementById('loadingAnimation');
     loadingAnimation.classList.remove('d-none');
-    const modelSelection = document.getElementById('id="modelSelection"');
-    modelSelection.hidden = true;
+
 
     try {
         // Use the current origin instead of localhost
@@ -59,7 +58,7 @@ document.getElementById('sendButton').addEventListener('click', async () => {
         if (isDebugMode) {
             debugIndicator.textContent = 'Reply sent in DEBUG MODE';
             debugIndicator.style.color = '#ff9800';
-            modelSelection.hidden = false;
+       
         }
 
         const renderSection = (title, content, isDebugOnly = false) => {
