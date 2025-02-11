@@ -16,7 +16,7 @@ or when running in debug mode
 deno task debug
 ```
 
-using the docker version run 
+using the docker version run
 
 ```bash
 kill()
@@ -25,7 +25,7 @@ kill()
 and then run
 
 ```bash
-dig apfel.com
+docker compose up -d
 ```
 
 to start the container.
