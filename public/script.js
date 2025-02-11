@@ -4,14 +4,14 @@ async function populateModelDropdown() {
     loadingAnimation.classList.remove('d-none');
 
     try {
-        const response = await fetch('http://localhost:3741/getModels');
+        // Use the current origin instead of localhost
+        const response = await fetch(`${window.location.origin}/getModels`);
         if (!response.ok) {
             throw new Error(`Failed to fetch models with status ${response.status}`);
         }
         const jsonResponse = await response.json();
         console.log(jsonResponse);
         for (const mod of jsonResponse) {
-            const model = mod.modelName;
             const option = document.createElement('option');
             option.value = mod.modelName.replace(/:latest$/, '');
             option.textContent = mod.modelName.replace(/:latest$/, '');
@@ -29,6 +29,7 @@ document.getElementById('sendButton').addEventListener('click', async () => {
     const output = document.getElementById('output');
     const debugIndicator = document.getElementById('debugIndicator');
     const loadingAnimation = document.getElementById('loadingAnimation');
+    const csvButton = document.getElementById('csvButton');
 
     output.innerHTML = '';
     debugIndicator.innerHTML = '';
@@ -43,7 +44,8 @@ document.getElementById('sendButton').addEventListener('click', async () => {
     loadingAnimation.classList.remove('d-none');
 
     try {
-        const response = await fetch(`http://localhost:3741/api?Input=${encodeURIComponent(userInput)}`);
+        // Use the current origin for the API endpoint
+        const response = await fetch(`${window.location.origin}/api?Input=${encodeURIComponent(userInput)}`);
         if (!response.ok) {
             throw new Error(`API request failed with status ${response.status}`);
         }
@@ -57,6 +59,7 @@ document.getElementById('sendButton').addEventListener('click', async () => {
         }
 
         const renderSection = (title, content, isDebugOnly = false) => {
+            // If there's no content, or if the content is only for debug mode and debug is off, do nothing
             if (!content || (isDebugOnly && !isDebugMode)) return;
         
             const section = document.createElement('div');
@@ -64,7 +67,7 @@ document.getElementById('sendButton').addEventListener('click', async () => {
         
             const heading = document.createElement('h3');
             heading.textContent = title;
-            heading.style.fontSize = 'inherit'; // Wichtig für die Skalierung
+            heading.style.fontSize = 'inherit'; // Important for scaling
         
             const pre = document.createElement('pre');
             pre.textContent = content;
@@ -84,7 +87,7 @@ document.getElementById('sendButton').addEventListener('click', async () => {
             renderSection('Daten', 'Invalid format');
         }
 
-        // In the sendButton click handler, modify the CSV content generation:
+        // Update CSV content generation
         if (Array.isArray(jsonResponse.daten) && jsonResponse.daten.length > 0) {
             // Extract headers from markdown table if available
             let headers = [];
@@ -105,7 +108,6 @@ document.getElementById('sendButton').addEventListener('click', async () => {
             csvButton.dataset.csv = csvContent;
             csvButton.classList.remove('d-none');
         }
-
 
         if (jsonResponse.mdTable) {
             const markdownContainer = document.createElement('div');
@@ -138,7 +140,8 @@ document.getElementById('selectModelButton').addEventListener('click', async () 
     loadingAnimation.classList.remove('d-none');
 
     try {
-        const response = await fetch(`http://localhost:3741/model?Model=${encodeURIComponent(selectedModel)}`);
+        // Use the current origin for the model selection endpoint
+        const response = await fetch(`${window.location.origin}/model?Model=${encodeURIComponent(selectedModel)}`);
         if (!response.ok) {
             throw new Error(`Model selection failed with status ${response.status}`);
         }
@@ -173,7 +176,6 @@ document.getElementById('textSizeSlider').addEventListener('input', (event) => {
 
     document.getElementById('textSizeValue').textContent = textSize;
 });
-
 
 document.getElementById('textColorPicker').addEventListener('input', (event) => {
     const textColor = event.target.value;
@@ -214,8 +216,8 @@ document.getElementById('datasetButton').addEventListener('click', async () => {
     const debugIndicator = document.getElementById('debugIndicator');
     const loadingAnimation = document.getElementById('loadingAnimation');
 
-     // Hide CSV button when structure request is made
-     document.getElementById('csvButton').classList.add('d-none');
+    // Hide CSV button when structure request is made
+    document.getElementById('csvButton').classList.add('d-none');
 
     output.innerHTML = '';
     debugIndicator.innerHTML = '';
@@ -229,13 +231,15 @@ document.getElementById('datasetButton').addEventListener('click', async () => {
     loadingAnimation.classList.remove('d-none');
 
     try {
-        const response = await fetch(`http://localhost:3741/dataset?Input=${encodeURIComponent(userInput)}`);
+        // Use the current origin for the dataset endpoint
+        const response = await fetch(`${window.location.origin}/dataset?Input=${encodeURIComponent(userInput)}`);
         if (!response.ok) {
             throw new Error(`API request failed with status ${response.status}`);
         }
 
         const text = await response.text();
         const renderSection = (title, content, isDebugOnly = false) => {
+            // Assuming `isDebugMode` is available here if needed; otherwise, adjust as required.
             if (!content || (isDebugOnly && !isDebugMode)) return;
         
             const section = document.createElement('div');
@@ -243,7 +247,7 @@ document.getElementById('datasetButton').addEventListener('click', async () => {
         
             const heading = document.createElement('h3');
             heading.textContent = title;
-            heading.style.fontSize = 'inherit'; // Wichtig für die Skalierung
+            heading.style.fontSize = 'inherit';
         
             const pre = document.createElement('pre');
             pre.textContent = content;
@@ -255,15 +259,12 @@ document.getElementById('datasetButton').addEventListener('click', async () => {
 
         renderSection('Response', text, false);
 
-
-
     } catch (error) {
         output.textContent = `Error: ${error.message}`;
     } finally {
         loadingAnimation.classList.add('d-none');
     }
 });
-
 
 document.getElementById('csvButton').addEventListener('click', function() {
     const csvContent = this.dataset.csv;
@@ -276,16 +277,16 @@ document.getElementById('csvButton').addEventListener('click', function() {
     link.setAttribute('href', url);
     const date = new Date();
 
-const day = String(date.getDate()).padStart(2, '0');
-const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
-const year = date.getFullYear();
-const hours = String(date.getHours()).padStart(2, '0');
-const minutes = String(date.getMinutes()).padStart(2, '0');
-const seconds = String(date.getSeconds()).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0'); 
+    const year = date.getFullYear();
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
 
-const formattedDate = `${day}-${month}-${year}-${hours}-${minutes}-${seconds}`;
+    const formattedDate = `${day}-${month}-${year}-${hours}-${minutes}-${seconds}`;
 
-console.log(formattedDate);
+    console.log(formattedDate);
 
     link.setAttribute('download', `${formattedDate}.csv`);
     document.body.appendChild(link);
