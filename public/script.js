@@ -55,10 +55,13 @@ document.getElementById('sendButton').addEventListener('click', async () => {
         const jsonResponse = await response.json();
         const isDebugMode = jsonResponse.debug === "1";
 
+    
         if (isDebugMode) {
             debugIndicator.textContent = 'Reply sent in DEBUG MODE';
             debugIndicator.style.color = '#ff9800';
-       
+            modelSelection.classList.remove('d-none'); // Show modelSelection
+        } else {
+            modelSelection.classList.add('d-none'); // Hide modelSelection
         }
 
         const renderSection = (title, content, isDebugOnly = false) => {
@@ -297,5 +300,23 @@ document.getElementById('csvButton').addEventListener('click', function() {
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
 });
+
+document.addEventListener("DOMContentLoaded", async function () {
+    try {
+        let response = await fetch('/debug');
+        let data = await response.json();
+
+        if (data.debug === 1) {
+            let modelSelection = document.getElementById("modelSelection");
+            if (modelSelection) {
+                modelSelection.classList.remove("d-none");
+            }
+        }
+    } catch (error) {
+        console.error("Fehler beim Abrufen des Debug-Modus:", error);
+    }
+});
+
+
 
 window.onload = populateModelDropdown;
