@@ -39,7 +39,7 @@ const routes: Route[] = [
         const input = url.searchParams.get("Input");
 
         const result = await answerDatabaseQuestion(input||"Explain the Database to me");
-        return new Response(result, { headers: { "Content-Type": "text/plain" } });
+        return new Response(result, { headers: { "Content-Type": "application/json" } });
       }
 
       return new Response("Method not allowed", { status: 405 });
@@ -85,7 +85,7 @@ const routes: Route[] = [
 
         if (debugParam === null) {
           
-          return new Response(JSON.stringify(debug), { headers: { "Content-Type": "application/json" } });
+          return new Response(debug, { headers: { "Content-Type": "text/plain" } });
         }
 
         debug = debugParam;
@@ -196,7 +196,7 @@ const routes: Route[] = [
       if (req.method === "GET") {
         const result = await getModels();
         
-        return new Response(result, { headers: { "Content-Type": "application/json" } });
+        return new Response(result, { headers: { "Content-Type": "text/plain" } });
       }
 
       return new Response("Method not allowed", { status: 405 });

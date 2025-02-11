@@ -1,3 +1,5 @@
+let isDebugMode;
+
 async function populateModelDropdown() {
     const modelDropdown = document.getElementById('modelDropdown');
     const loadingAnimation = document.getElementById('loadingAnimation');
@@ -53,7 +55,7 @@ document.getElementById('sendButton').addEventListener('click', async () => {
         }
 
         const jsonResponse = await response.json();
-        const isDebugMode = jsonResponse.debug === "1";
+        isDebugMode = jsonResponse.debug === "1";
 
     
         if (isDebugMode) {
@@ -302,13 +304,17 @@ document.getElementById('csvButton').addEventListener('click', function() {
 });
 
 document.addEventListener("DOMContentLoaded", async function () {
+    
     try {
-        let response = await fetch('/debug');
-        let data = await response.json();
+        const response = await fetch('/debug');
+        const data = await response.text();
+        
 
-        if (data.debug === 1) {
-            let modelSelection = document.getElementById("modelSelection");
+        if (data == 1) {
+            isDebugMode = true;
+            const modelSelection = document.getElementById("modelSelection");
             if (modelSelection) {
+                
                 modelSelection.classList.remove("d-none");
             }
         }
