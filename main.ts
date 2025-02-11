@@ -84,7 +84,8 @@ const routes: Route[] = [
 
 
         if (debugParam === null) {
-          return new Response("Debug parameter is required", { status: 400 });
+          
+          return new Response(JSON.stringify(debug), { headers: { "Content-Type": "application/json" } });
         }
 
         debug = debugParam;
