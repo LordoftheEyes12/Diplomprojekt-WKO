@@ -39,7 +39,7 @@ To use the programme simply enter the question and select the desired option
 Usage requirements:
 
 - Deno needs to be installed on the host system
-- For the Docker container docker-engine and docker-compose need to be installed on the host system
+- For the Docker container docker-engine needs to be installed on the host system. The container will install all dependencies
 - an AI provider needs to be set. Instructions found below
 
 ### set AI provider
@@ -58,91 +58,112 @@ a sample JSON response may look like this
 
 ```json
 {
-  "input": "give me all the orders and products from customer 24",
-  "result": "SELECT \n    o.OrderID,\n    c.CustomerName,\n    e.FirstName || ' ' || e.LastName AS EmployeeName,\n    o.OrderDate,\n    od.Quantity,\n    p.ProductName,\n    p.Price\nFROM orders o\nJOIN customers c ON o.CustomerID = c.CustomerID\nJOIN employees e ON o.EmployeeID = e.EmployeeID\nJOIN order_details od ON o.OrderID = od.OrderID\nJOIN products p ON od.ProductID = p.ProductID\nWHERE c.CustomerID = 24;",
-  "daten": [
-    [
-      10264,
-      "Folk och fä HB",
-      "Michael Suyama",
-      "1996-07-24",
-      35,
-      "Chang",
-      19
+    "debug": "0",
+    "daten": [
+        [
+            10264,
+            2,
+            "Chang",
+            35
+        ],
+        [
+            10264,
+            41,
+            "Jacks New England Clam Chowder",
+            25
+        ],
+        [
+            10327,
+            2,
+            "Chang",
+            25
+        ],
+        [
+            10327,
+            11,
+            "Queso Cabrales",
+            50
+        ],
+        [
+            10327,
+            30,
+            "Nord-Ost Matjeshering",
+            35
+        ],
+        [
+            10327,
+            58,
+            "Escargots de Bourgogne",
+            30
+        ],
+        [
+            10378,
+            71,
+            "Fløtemysost",
+            6
+        ],
+        [
+            10434,
+            11,
+            "Queso Cabrales",
+            6
+        ],
+        [
+            10434,
+            76,
+            "Lakkalikööri",
+            18
+        ]
     ],
-    [
-      10264,
-      "Folk och fä HB",
-      "Michael Suyama",
-      "1996-07-24",
-      25,
-      "Jacks New England Clam Chowder",
-      9.65
+    "mdTable": "| OrderID | ProductID | ProductName           | Quantity |\n|---------|-----------|-----------------------|----------|\n| 10264   | 2         | Chang                 | 35       |\n| 10264   | 41        | Jack's New England Clam Chowder | 25       |\n| 10327   | 2         | Chang                 | 25       |\n| 10327   | 11        | Queso Cabrales        | 50       |\n| 10327   | 30        | Nord-Ost Matjeshering | 35       |\n| 10327   | 58        | Escargots de Bourgogne | 30     |\n| 10378    | 71        | Fløtemysost           | 6        |\n| 10434   | 11        | Queso Cabrales        | 6        |\n| 10434   | 76        | Lakkalikööri          | 18       |"
+}
+```
+
+in Debug mode the Response looks like this
+
+```json
+{
+    "debug": "1",
+    "input": "give me all the orders and products from customer 24",
+    "result": "SELECT orders.OrderID, order_details.ProductID\nFROM orders\nINNER JOIN order_details ON orders.OrderID = order_details.OrderID\nWHERE orders.CustomerID = 24;",
+    "daten": [
+        [
+            10264,
+            2
+        ],
+        [
+            10264,
+            41
+        ],
+        [
+            10327,
+            2
+        ],
+        [
+            10327,
+            11
+        ],
+        [
+            10327,
+            30
+        ],
+        [
+            10327,
+            58
+        ],
+        [
+            10378,
+            71
+        ],
+        [
+            10434,
+            11
+        ],
+        [
+            10434,
+            76
+        ]
     ],
-    [
-      10327,
-      "Folk och fä HB",
-      "Andrew Fuller",
-      "1996-10-11",
-      25,
-      "Chang",
-      19
-    ],
-    [
-      10327,
-      "Folk och fä HB",
-      "Andrew Fuller",
-      "1996-10-11",
-      50,
-      "Queso Cabrales",
-      21
-    ],
-    [
-      10327,
-      "Folk och fä HB",
-      "Andrew Fuller",
-      "1996-10-11",
-      35,
-      "Nord-Ost Matjeshering",
-      25.89
-    ],
-    [
-      10327,
-      "Folk och fä HB",
-      "Andrew Fuller",
-      "1996-10-11",
-      30,
-      "Escargots de Bourgogne",
-      13.25
-    ],
-    [
-      10378,
-      "Folk och fä HB",
-      "Steven Buchanan",
-      "1996-12-10",
-      6,
-      "Fløtemysost",
-      21.5
-    ],
-    [
-      10434,
-      "Folk och fä HB",
-      "Janet Leverling",
-      "1997-02-03",
-      6,
-      "Queso Cabrales",
-      21
-    ],
-    [
-      10434,
-      "Folk och fä HB",
-      "Janet Leverling",
-      "1997-02-03",
-      18,
-      "Lakkalikööri",
-      18
-    ]
-  ],
-  "mdTable": "| OrderID | CustomerName      | EmployeeName       | OrderDate    | Quantity | ProductName            | Price |\n|---------|-------------------|--------------------|-------------|----------|------------------------|-------|\n| 10264   | Folk och fä HB    | Michael Suyama     | 1996-07-24  | 35       | Chang                  | 19.00 |\n| 10264   | Folk och fä HB    | Michael Suyama     | 1996-07-24  | 25       | Jacks New England Clam Chowder | 9.65 |\n| 10327   | Folk och fä HB    | Andrew Fuller      | 1996-10-11  | 25       | Chang                  | 19.00 |\n| 10327   | Folk och fä HB    | Andrew Fuller      | 1996-10-11  | 50       | Queso Cabrales         | 21.00 |\n| 10327   | Folk och fä HB    | Andrew Fuller      | 1996-10-11  | 35       | Nord-Ost Matjeshering  | 25.89 |\n| 10327   | Folk och fä HB    | Andrew Fuller      | 1996-10-11  | 30       | Escargots de Bourgogne | 13.25 |\n| 10378   | Folk och fä HB    | Steven Buchanan    | 1996-12-10  | 6        | Fløtemysost            | 21.50 |\n| 10434   | Folk och fä HB    | Janet Leverling    | 1997-02-03  | 6        | Queso Cabrales         | 21.00 |\n| 10434   | Folk och fä HB    | Janet Leverling    | 1997-02-03  | 18       | Lakkalikööri           | 18.00 |"
+    "mdTable": "| OrderID | ProductID |\n|---------|-----------|\n| 10264   | 2         |\n| 10264   | 41        |\n| 10327   | 2         |\n| 10327   | 11        |\n| 10327   | 30        |\n| 10327   | 58        |\n| 10378   | 71        |\n| 10434   | 11        |\n| 10434   | 76        |"
 }
 ```
