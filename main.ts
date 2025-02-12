@@ -207,11 +207,11 @@ const routes: Route[] = [
 async function apiCall(input: string | null) {
   console.log("Input value:", input);
   let mdTable = "";
+  
   const result = await getSQLQuery(input) || "";
-  const query1 = filterThought(result);
   console.log("result?")
-  console.log("\n\n", query1);
-  const daten = DataBase.query(query1);
+  console.log("\n\n ABC", result);
+  const daten = DataBase.query(result);
   console.log(daten);
   if (Object.keys(daten).length === 0) {
     mdTable = "no data";

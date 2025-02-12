@@ -1,5 +1,6 @@
 import XRegExp from 'xregexp';
 import "https://deno.land/x/dotenv@v3.2.2/load.ts";
+import * as jsdom from "npm:jsdom";
 
 import { getModels, setModel, populateDB } from "./modelHandle.ts";
 export { getModels, setModel, populateDB };
@@ -205,7 +206,8 @@ export async function getMarkdownTable(daten: string, result: string) {
 
 export async function getSQLQuery(input: string | null) {
   const response = await generateSelectQuery(schema, input || "");
-  const apfelsaft = extractSQLSelect(response.toString());
+  const query1 = filterThought(response || "");
+  const apfelsaft = extractSQLSelect(query1.toString());
   return apfelsaft;
 }
 
@@ -221,9 +223,19 @@ export function changeProvider(provider: string){
 }
 
 export function filterThought(input: string): string {
-  const thinkBlockPattern = XRegExp('<think[^>]*>[\\s\\S]*?</think>', 'g');
-  const cleanedString = XRegExp.replace(input, thinkBlockPattern, '');
-  return cleanedString;
+  
+  const dom = new jsdom.JSDOM(input);
+const think = dom.window.document.querySelectorAll("think");
+think.forEach((el) => {
+  el.remove();
+});
+let cleanedString = dom.window.document.body.innerHTML;
+
+cleanedString = cleanedString.replace(/^[\s\S]*?(?=```sql)/, '');
+
+console.log("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nApfel",cleanedString);
+return cleanedString;
+
 }
 
 export async function answerDatabaseQuestion(input: string) {
