@@ -92,7 +92,7 @@ export async function generateSelectQuery(schema: string, input: string) {
   }
   apiUrl = apiUrl + "/v1/chat/completions";
   console.log("model", model);
-  console.log("apiUrl", apiUrl);
+  
   if (!apiUrl) {
     console.error("Error: API_URL is not set in the .env file.");
     return;
@@ -121,11 +121,10 @@ export async function generateSelectQuery(schema: string, input: string) {
     }
 
     const result = await response.json();
-    //console.log(result);
+
     const queryResult = result.choices[0]?.message?.content || "No response from the model";
 
-    console.log("Generated SELECT Query:");
-    console.log(queryResult);
+   
     return queryResult;
   } catch (error) {
     console.error("Error generating SELECT query:", error.message);
@@ -184,8 +183,7 @@ async function createMarkdownTable(query: string, data: string) {
     const result = await response.json();
     const markdownTable = result.choices[0]?.message?.content || "No markdown table generated";
 
-    console.log("Generated Markdown Table:");
-    console.log(markdownTable);
+  
     const resp = extractMarkdownTable(markdownTable);
     return resp;
   } catch (error) {
@@ -206,9 +204,9 @@ export async function getMarkdownTable(daten: string, result: string) {
 
 export async function getSQLQuery(input: string | null) {
   const response = await generateSelectQuery(schema, input || "");
-  const query1 = filterThought(response || "");
-  const apfelsaft = extractSQLSelect(query1.toString());
-  return apfelsaft;
+  const filteredQuery = filterThought(response || "");
+  const query = extractSQLSelect(filteredQuery.toString());
+  return query;
 }
 
 export function changeProvider(provider: string){
@@ -233,7 +231,6 @@ let cleanedString = dom.window.document.body.innerHTML;
 
 cleanedString = cleanedString.replace(/^[\s\S]*?(?=```sql)/, '');
 
-console.log("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nApfel",cleanedString);
 return cleanedString;
 
 }
@@ -256,7 +253,7 @@ export async function answerDatabaseQuestion(input: string) {
   }
   apiUrl = apiUrl + "/v1/chat/completions";
   console.log("model", model);
-  console.log("apiUrl", apiUrl);
+
   if (!apiUrl) {
     console.error("Error: API_URL is not set in the .env file.");
     return;
@@ -285,11 +282,9 @@ export async function answerDatabaseQuestion(input: string) {
     }
 
     const result = await response.json();
-    //console.log(result);
+
     const queryResult = result.choices[0]?.message?.content || "No response from the model";
 
-    console.log("Generated SELECT Query:");
-    console.log(queryResult);
     return queryResult;
   } catch (error) {
     console.error("Error generating SELECT query:", error.message);

@@ -1,6 +1,6 @@
 import { DB } from 'https://deno.land/x/sqlite/mod.ts';
 import { route, type Route } from "@std/http/unstable-route";
-import { getMarkdownTable,  getSQLQuery, changeProvider, getModels, setModel, populateDB, filterThought,answerDatabaseQuestion } from "./lib.ts";
+import { getMarkdownTable,  getSQLQuery, changeProvider, getModels, setModel, populateDB,answerDatabaseQuestion } from "./lib.ts";
 import "https://deno.land/x/dotenv@v3.2.2/load.ts";
 
 
@@ -19,7 +19,6 @@ const routes: Route[] = [
       if (req.method === "GET") {
         const url = new URL(req.url);
         const input = url.searchParams.get("Input");
-
         const result = await apiCall(input);
         return new Response(result, { headers: { "Content-Type": "application/json" } });
       }
@@ -63,8 +62,6 @@ const routes: Route[] = [
           }
         }
         const result = setModel(model);
-        console.log(Deno.env.get("OA_MODEL"));
-        console.log(Deno.env.get("OL_MODEL"));
         return new Response(result, { headers: { "Content-Type": "application/json" } });
       }
 
@@ -106,8 +103,8 @@ const routes: Route[] = [
         return new Response(null);
       }
       if (req.method === "GET") {
-        const DBseed = await populateDB();
-        console.log(DBseed);
+        await populateDB();
+
         const html = await Deno.readFile("./public/new.html");
 
         return new Response(html, { headers: { "Content-Type": "text/html" } });
@@ -121,7 +118,7 @@ const routes: Route[] = [
     pattern: new URLPattern({ pathname: "/new" }),
     handler: async (req: Request) => {
       if (req.method === "GET") {
-        const html = await Deno.readFile("./public/new.html");
+        const html = await Deno.readFile("./public/index.html");
         return new Response(html, { headers: { "Content-Type": "text/html" } });
       }
   
@@ -209,10 +206,9 @@ async function apiCall(input: string | null) {
   let mdTable = "";
   
   const result = await getSQLQuery(input) || "";
-  console.log("result?")
-  console.log("\n\n ABC", result);
+ 
   const daten = DataBase.query(result);
-  console.log(daten);
+
   if (Object.keys(daten).length === 0) {
     mdTable = "no data";
   } else {

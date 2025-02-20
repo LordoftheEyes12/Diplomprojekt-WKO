@@ -64,12 +64,12 @@ export async function populateDB(){
             }
             catch(_e)
             {
-                errorcount++;
+                errorcount++; //if there are errors encountered the model already exists in the Database
                 continue;
             }
         }}
         catch(e){
-          console.log(e);
+          console.error(e);
         }
         try{
         const olApiUrl = Deno.env.get("OL_API_URL");
@@ -78,28 +78,28 @@ export async function populateDB(){
         const olResponse = await olResponse1.json();
         for (const model of olResponse.models)
         {
-            console.log(model.name);
+         
             models.push({modelName: model.name, provider: "OL"});
             try
             {
                 addModel( model.name.replace(/:latest$/, ''), "OL");
             }
             catch(_e){
-                errorcount++;
+                errorcount++; //if there are errors encountered the model already exists in the Database
                 continue;
             }
         }
       }catch(e){
-        console.log(e);
+        console.error(e);
       }
     }
     catch(e)
     {
-        console.log(e);
+        console.error(e);
     }
     finally
     {
-        console.log(`Error count: ${errorcount}`);
+        console.log(`Error count (Model already in Database): ${errorcount}`);
    
     }
   }
@@ -112,11 +112,8 @@ type model ={
 
 function addModel(model: string, provider: string)
 {
-  const hit = modelDB.query(`INSERT INTO models (modelName, provider) VALUES ('${model}', '${provider}')`);
-  console.log(hit);
+  modelDB.query(`INSERT INTO models (modelName, provider) VALUES ('${model}', '${provider}')`);
   const check = modelDB.query(`SELECT provider, modelName FROM models WHERE modelName = '${model}'`);
-  console.log(check);
-
   return check;
 }
 
@@ -133,7 +130,7 @@ export async function listModels(){
     models.push({modelName: model.id, provider: "OA"});
   }}
   catch(e){
-    console.log(e);
+    console.error(e);
   }
   try{
   const olApiUrl = Deno.env.get("OL_API_URL");
@@ -144,12 +141,12 @@ export async function listModels(){
     models.push({modelName: model.name.replace(/:latest$/, ''), provider: "OL"});
   }}
   catch(e){
-    console.log(e);
+    console.error(e);
   }
 }
   
   catch(e){
-    console.log(e);
+    console.error(e);
   }
   
   return JSON.stringify(models);
