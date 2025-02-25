@@ -244,34 +244,27 @@ document.getElementById('datasetButton').addEventListener('click', async () => {
 
     loadingAnimation.classList.remove('d-none');
 
+   
     try {
-        // Use the current origin for the dataset endpoint
         const response = await fetch(`${window.location.origin}/dataset?Input=${encodeURIComponent(userInput)}`);
         if (!response.ok) {
             throw new Error(`API request failed with status ${response.status}`);
         }
 
         const text = await response.text();
-        const renderSection = (title, content, isDebugOnly = false) => {
-            // Assuming `isDebugMode` is available here if needed; otherwise, adjust as required.
-            if (!content || (isDebugOnly && !isDebugMode)) return;
         
-            const section = document.createElement('div');
-            section.className = 'section' + (isDebugOnly ? ' debug-mode' : '');
-        
-            const heading = document.createElement('h3');
-            heading.textContent = title;
-            heading.style.fontSize = 'inherit';
-        
-            const pre = document.createElement('pre');
-            pre.textContent = content;
-        
-            section.appendChild(heading);
-            section.appendChild(pre);
-            output.appendChild(section);
-        };
+        // Create markdown container
+        const markdownContainer = document.createElement('div');
+        markdownContainer.className = 'section';
 
-        renderSection('Response', text, false);
+        // Parse and render markdown
+        const markdownContent = document.createElement('div');
+        markdownContent.className = 'markdown';
+        markdownContent.innerHTML = marked.parse(text);  // This converts MD to HTML
+
+        // Assemble elements
+        markdownContainer.appendChild(markdownContent);
+        output.appendChild(markdownContainer);
 
     } catch (error) {
         output.textContent = `Error: ${error.message}`;
