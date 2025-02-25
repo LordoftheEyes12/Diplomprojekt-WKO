@@ -263,7 +263,7 @@ export async function answerDatabaseQuestion(input: string) {
   
   const payload = {
     model: model,
-    messages: [{ role: "user", content: `using the SQLite database with this schema\n schema: ${schema} \n answer the following query: ${input}` }],
+    messages: [{ role: "user", content: `using the SQLite database with this schema\n schema: ${schema} \n answer the following query: ${input}. Return Markdown` }],
     stream: false,
   };
 

@@ -105,26 +105,15 @@ const routes: Route[] = [
       if (req.method === "GET") {
         await populateDB();
 
-        const html = await Deno.readFile("./public/new.html");
-
-        return new Response(html, { headers: { "Content-Type": "text/html" } });
-      }
-
-      return new Response("Method not allowed", { status: 405 });
-    },
-  },
-  {
-    method: ["GET"],
-    pattern: new URLPattern({ pathname: "/new" }),
-    handler: async (req: Request) => {
-      if (req.method === "GET") {
         const html = await Deno.readFile("./public/index.html");
+
         return new Response(html, { headers: { "Content-Type": "text/html" } });
       }
-  
+
       return new Response("Method not allowed", { status: 405 });
     },
   },
+ 
   {
     method: ["GET"],
     pattern: new URLPattern({ pathname: "/script.js" }),
