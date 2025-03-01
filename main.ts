@@ -113,7 +113,6 @@ const routes: Route[] = [
       return new Response("Method not allowed", { status: 405 });
     },
   },
- 
   {
     method: ["GET"],
     pattern: new URLPattern({ pathname: "/script.js" }),
