@@ -324,17 +324,17 @@ document.addEventListener("DOMContentLoaded", async function () {
 
 
 document.getElementById('resetSettingsButton').addEventListener('click', () => {
-    // Reset color pickers
+    
     document.getElementById('backgroundColorPicker').value = '#121212';
     document.getElementById('textColorPicker').value = '#ffffff';
     document.getElementById('headingColorPicker').value = '#ffffff';
     document.getElementById('buttonColorPicker').value = '#ffffff';
     document.getElementById('buttonBgColorPicker').value = '#3700b3';
 
-    // Reset text size
+    
     document.getElementById('textSizeSlider').value = 16;
     
-    // Trigger input events to apply changes
+    
     document.getElementById('backgroundColorPicker').dispatchEvent(new Event('input'));
     document.getElementById('textColorPicker').dispatchEvent(new Event('input'));
     document.getElementById('headingColorPicker').dispatchEvent(new Event('input'));
