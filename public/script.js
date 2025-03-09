@@ -309,6 +309,7 @@ document.getElementById('csvButton').addEventListener('click', function() {
     URL.revokeObjectURL(url);
 });
 
+// Silver
 document.addEventListener("DOMContentLoaded", async function () {
     
     try {
