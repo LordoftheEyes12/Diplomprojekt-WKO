@@ -152,6 +152,7 @@ export async function listModels(){
   return JSON.stringify(models);
 }
 
-export async function getModels(){
-    return await listModels();
-  }
+export async function getModels()
+{
+  return await listModels();
+}

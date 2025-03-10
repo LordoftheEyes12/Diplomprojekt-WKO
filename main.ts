@@ -150,7 +150,7 @@ const routes: Route[] = [
         }
         const response = changeProvider(provider); 
         
-        return new Response(response, { headers: { "Content-Type": "text/css" } });
+        return new Response(response, { headers: { "Content-Type": "text/plain" } });
       }
   
       return new Response("Method not allowed", { status: 405 });
@@ -192,11 +192,8 @@ const routes: Route[] = [
 async function apiCall(input: string | null) {
   console.log("Input value:", input);
   let mdTable = "";
-  
   const result = await getSQLQuery(input) || "";
- 
   const daten = DataBase.query(result);
-
   if (Object.keys(daten).length === 0) {
     mdTable = "no data";
   } else {
