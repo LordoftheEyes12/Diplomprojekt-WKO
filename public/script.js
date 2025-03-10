@@ -1,3 +1,4 @@
+// Silver
 let isDebugMode;
 
 async function populateModelDropdown() {
@@ -27,6 +28,8 @@ async function populateModelDropdown() {
     }
 }
 
+
+// Silver
 document.getElementById('sendButton').addEventListener('click', async () => {
     const inputField = document.getElementById('inputField');
     const output = document.getElementById('output');
@@ -140,6 +143,7 @@ document.getElementById('sendButton').addEventListener('click', async () => {
     }
 });
 
+// Silver
 document.getElementById('selectModelButton').addEventListener('click', async () => {
     const modelDropdown = document.getElementById('modelDropdown');
     const selectedModel = modelDropdown.value;
@@ -162,22 +166,24 @@ document.getElementById('selectModelButton').addEventListener('click', async () 
     }
 });
 
+
+// Theo
 document.getElementById('settingsButton').addEventListener('click', () => {
     const settingsMenu = new bootstrap.Offcanvas(document.getElementById('settingsMenu'));
     settingsMenu.toggle();
 });
 
+// Theo
 document.getElementById('backgroundColorPicker').addEventListener('input', (event) => {
     document.body.style.backgroundColor = event.target.value;
 });
 
+// Theo
 document.getElementById('textSizeSlider').addEventListener('input', (event) => {
     const textSize = event.target.value + 'px';
     
-    // Only update body font size
     document.body.style.fontSize = textSize;
 
-    // Keep form element scaling if needed:
     document.querySelectorAll('.form-control, .form-select, .btn').forEach(element => {
         element.style.fontSize = textSize;
     });
@@ -185,45 +191,45 @@ document.getElementById('textSizeSlider').addEventListener('input', (event) => {
     document.getElementById('textSizeValue').textContent = textSize;
 });
 
+// Theo
 document.getElementById('textColorPicker').addEventListener('input', (event) => {
     const textColor = event.target.value;
     
-    // Update CSS variable for standard text
     document.documentElement.style.setProperty('--text-color', textColor);
     
-    // Apply to body and form elements
     document.body.style.color = textColor;
     document.querySelectorAll('input, select, textarea').forEach(input => {
         input.style.color = textColor;
     });
 });
 
+// Theo
 document.getElementById('headingColorPicker').addEventListener('input', (event) => {
     const headingColor = event.target.value;
     
-    // Update CSS variable and apply to headings
     document.documentElement.style.setProperty('--heading-color', headingColor);
     document.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(heading => {
         heading.style.color = headingColor;
     });
 });
 
+// Theo
 document.getElementById('buttonColorPicker').addEventListener('input', (event) => {
     const buttonColor = event.target.value;
     
-    // Update CSS variable and apply to buttons
     document.documentElement.style.setProperty('--button-color', buttonColor);
     document.querySelectorAll('.btn').forEach(button => {
         button.style.color = buttonColor + '!important';
     });
 });
 
+// Theo
 document.getElementById('buttonBgColorPicker').addEventListener('input', (event) => {
     const buttonBgColor = event.target.value;
     document.documentElement.style.setProperty('--button-bg-color', buttonBgColor);
 });
 
-
+// Silver
 document.getElementById('datasetButton').addEventListener('click', async () => {
     const inputField = document.getElementById('inputField');
     const output = document.getElementById('output');
@@ -273,6 +279,7 @@ document.getElementById('datasetButton').addEventListener('click', async () => {
     }
 });
 
+// Theo
 document.getElementById('csvButton').addEventListener('click', function() {
     const csvContent = this.dataset.csv;
     if (!csvContent) return;
@@ -302,6 +309,7 @@ document.getElementById('csvButton').addEventListener('click', function() {
     URL.revokeObjectURL(url);
 });
 
+// Silver
 document.addEventListener("DOMContentLoaded", async function () {
     
     try {
@@ -320,6 +328,28 @@ document.addEventListener("DOMContentLoaded", async function () {
     } catch (error) {
         console.error("Fehler beim Abrufen des Debug-Modus:", error);
     }
+});
+
+
+// Theo
+document.getElementById('resetSettingsButton').addEventListener('click', () => {
+    
+    document.getElementById('backgroundColorPicker').value = '#121212';
+    document.getElementById('textColorPicker').value = '#ffffff';
+    document.getElementById('headingColorPicker').value = '#ffffff';
+    document.getElementById('buttonColorPicker').value = '#ffffff';
+    document.getElementById('buttonBgColorPicker').value = '#3700b3';
+
+    
+    document.getElementById('textSizeSlider').value = 16;
+    
+    
+    document.getElementById('backgroundColorPicker').dispatchEvent(new Event('input'));
+    document.getElementById('textColorPicker').dispatchEvent(new Event('input'));
+    document.getElementById('headingColorPicker').dispatchEvent(new Event('input'));
+    document.getElementById('buttonColorPicker').dispatchEvent(new Event('input'));
+    document.getElementById('buttonBgColorPicker').dispatchEvent(new Event('input'));
+    document.getElementById('textSizeSlider').dispatchEvent(new Event('input'));
 });
 
 
