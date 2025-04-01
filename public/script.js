@@ -1,4 +1,3 @@
-// Silver
 let isDebugMode;
 
 async function populateModelDropdown() {
@@ -8,7 +7,6 @@ async function populateModelDropdown() {
 
 
     try {
-        // Use the current origin instead of localhost
         const response = await fetch(`${window.location.origin}/getModels`);
         if (!response.ok) {
             throw new Error(`Failed to fetch models with status ${response.status}`);
@@ -29,7 +27,6 @@ async function populateModelDropdown() {
 }
 
 
-// Silver
 document.getElementById('sendButton').addEventListener('click', async () => {
     const inputField = document.getElementById('inputField');
     const output = document.getElementById('output');
@@ -41,7 +38,7 @@ document.getElementById('sendButton').addEventListener('click', async () => {
     output.innerHTML = '';
     debugIndicator.innerHTML = '';
     const userInput = inputField.value;
-    csvButton.classList.add('d-none'); // Hide CSV button immediately
+    csvButton.classList.add('d-none');
 
     if (!userInput) {
         output.textContent = 'Please enter some input.';
@@ -51,7 +48,6 @@ document.getElementById('sendButton').addEventListener('click', async () => {
     loadingAnimation.classList.remove('d-none');
 
     try {
-        // Use the current origin for the API endpoint
         const response = await fetch(`${window.location.origin}/api?Input=${encodeURIComponent(userInput)}`);
         if (!response.ok) {
             throw new Error(`API request failed with status ${response.status}`);
@@ -64,13 +60,12 @@ document.getElementById('sendButton').addEventListener('click', async () => {
         if (isDebugMode) {
             debugIndicator.textContent = 'Reply sent in DEBUG MODE';
             debugIndicator.style.color = '#ff9800';
-            modelSelection.classList.remove('d-none'); // Show modelSelection
+            modelSelection.classList.remove('d-none');
         } else {
-            modelSelection.classList.add('d-none'); // Hide modelSelection
+            modelSelection.classList.add('d-none');
         }
 
         const renderSection = (title, content, isDebugOnly = false) => {
-            // If there's no content, or if the content is only for debug mode and debug is off, do nothing
             if (!content || (isDebugOnly && !isDebugMode)) return;
         
             const section = document.createElement('div');
@@ -78,7 +73,7 @@ document.getElementById('sendButton').addEventListener('click', async () => {
         
             const heading = document.createElement('h3');
             heading.textContent = title;
-            heading.style.fontSize = 'inherit'; // Important for scaling
+            heading.style.fontSize = 'inherit';
         
             const pre = document.createElement('pre');
             pre.textContent = content;
@@ -98,21 +93,18 @@ document.getElementById('sendButton').addEventListener('click', async () => {
             renderSection('Daten', 'Invalid format');
         }
 
-        // Update CSV content generation
         if (Array.isArray(jsonResponse.daten) && jsonResponse.daten.length > 0) {
-            // Extract headers from markdown table if available
             let headers = [];
             if (jsonResponse.mdTable) {
                 const firstLine = jsonResponse.mdTable.split('\n')[0];
                 headers = firstLine.split('|')
                     .map(h => h.trim())
-                    .filter(h => h && !h.startsWith('---')); // Exclude markdown separator line
+                    .filter(h => h && !h.startsWith('---')); 
             }
 
-            // Create CSV content with headers
             const rows = jsonResponse.daten.map(row => row.join(','));
             if (headers.length > 0) {
-                rows.unshift(headers.join(',')); // Add headers as first line
+                rows.unshift(headers.join(','));
             }
     
             const csvContent = rows.join('\n');
@@ -143,7 +135,7 @@ document.getElementById('sendButton').addEventListener('click', async () => {
     }
 });
 
-// Silver
+
 document.getElementById('selectModelButton').addEventListener('click', async () => {
     const modelDropdown = document.getElementById('modelDropdown');
     const selectedModel = modelDropdown.value;
@@ -152,7 +144,6 @@ document.getElementById('selectModelButton').addEventListener('click', async () 
     loadingAnimation.classList.remove('d-none');
 
     try {
-        // Use the current origin for the model selection endpoint
         const response = await fetch(`${window.location.origin}/model?Model=${encodeURIComponent(selectedModel)}`);
         if (!response.ok) {
             throw new Error(`Model selection failed with status ${response.status}`);
@@ -167,18 +158,17 @@ document.getElementById('selectModelButton').addEventListener('click', async () 
 });
 
 
-// Theo
 document.getElementById('settingsButton').addEventListener('click', () => {
     const settingsMenu = new bootstrap.Offcanvas(document.getElementById('settingsMenu'));
     settingsMenu.toggle();
 });
 
-// Theo
+
 document.getElementById('backgroundColorPicker').addEventListener('input', (event) => {
     document.body.style.backgroundColor = event.target.value;
 });
 
-// Theo
+
 document.getElementById('textSizeSlider').addEventListener('input', (event) => {
     const textSize = event.target.value + 'px';
     
@@ -191,7 +181,7 @@ document.getElementById('textSizeSlider').addEventListener('input', (event) => {
     document.getElementById('textSizeValue').textContent = textSize;
 });
 
-// Theo
+
 document.getElementById('textColorPicker').addEventListener('input', (event) => {
     const textColor = event.target.value;
     
@@ -203,7 +193,7 @@ document.getElementById('textColorPicker').addEventListener('input', (event) => 
     });
 });
 
-// Theo
+
 document.getElementById('headingColorPicker').addEventListener('input', (event) => {
     const headingColor = event.target.value;
     
@@ -213,7 +203,7 @@ document.getElementById('headingColorPicker').addEventListener('input', (event) 
     });
 });
 
-// Theo
+
 document.getElementById('buttonColorPicker').addEventListener('input', (event) => {
     const buttonColor = event.target.value;
     
@@ -223,20 +213,20 @@ document.getElementById('buttonColorPicker').addEventListener('input', (event) =
     });
 });
 
-// Theo
+
 document.getElementById('buttonBgColorPicker').addEventListener('input', (event) => {
     const buttonBgColor = event.target.value;
     document.documentElement.style.setProperty('--button-bg-color', buttonBgColor);
 });
 
-// Silver
+
 document.getElementById('datasetButton').addEventListener('click', async () => {
     const inputField = document.getElementById('inputField');
     const output = document.getElementById('output');
     const debugIndicator = document.getElementById('debugIndicator');
     const loadingAnimation = document.getElementById('loadingAnimation');
 
-    // Hide CSV button when structure request is made
+    
     document.getElementById('csvButton').classList.add('d-none');
 
     output.innerHTML = '';
@@ -258,17 +248,14 @@ document.getElementById('datasetButton').addEventListener('click', async () => {
         }
 
         const text = await response.text();
-        
-        // Create markdown container
+
         const markdownContainer = document.createElement('div');
         markdownContainer.className = 'section';
 
-        // Parse and render markdown
         const markdownContent = document.createElement('div');
         markdownContent.className = 'markdown';
-        markdownContent.innerHTML = marked.parse(text);  // This converts MD to HTML
+        markdownContent.innerHTML = marked.parse(text);
 
-        // Assemble elements
         markdownContainer.appendChild(markdownContent);
         output.appendChild(markdownContainer);
 
@@ -279,7 +266,6 @@ document.getElementById('datasetButton').addEventListener('click', async () => {
     }
 });
 
-// Theo
 document.getElementById('csvButton').addEventListener('click', function() {
     const csvContent = this.dataset.csv;
     if (!csvContent) return;
@@ -309,7 +295,6 @@ document.getElementById('csvButton').addEventListener('click', function() {
     URL.revokeObjectURL(url);
 });
 
-// Silver
 document.addEventListener("DOMContentLoaded", async function () {
     
     try {
@@ -330,8 +315,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     }
 });
 
-
-// Theo
 document.getElementById('resetSettingsButton').addEventListener('click', () => {
     
     document.getElementById('backgroundColorPicker').value = '#121212';
